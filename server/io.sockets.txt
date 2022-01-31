@@ -1,0 +1,111 @@
+{
+  _events: [Object: null prototype] { connection: [Function (anonymous)] },
+  _eventsCount: 1,
+  _maxListeners: undefined,
+  sockets: Map(1) {
+    'pM-P5m2NeOY4_HdlAAAD' => Socket {
+      _events: [Object: null prototype],
+      _eventsCount: 4,
+      _maxListeners: undefined,
+      nsp: [Circular *1],
+      client: [Client],
+      data: {},
+      connected: true,
+      acks: Map(0) {},
+      fns: [],
+      flags: {},
+      server: [Server],
+      adapter: [Adapter],
+      id: 'pM-P5m2NeOY4_HdlAAAD',
+      handshake: [Object],
+      [Symbol(kCapture)]: false
+    }
+  },
+  _fns: [],
+  _ids: 0,
+  server: Server {
+    _events: [Object: null prototype] {},
+    _eventsCount: 0,
+    _maxListeners: undefined,
+    _nsps: Map(1) { '/' => [Circular *1] },
+    parentNsps: Map(0) {},
+    _path: '/socket.io',
+    clientPathRegex: /^\/socket\.io\/socket\.io(\.msgpack|\.esm)?(\.min)?\.js(\.map)?(?:\?|$)/,
+    _connectTimeout: 45000,
+    _serveClient: true,
+    _parser: {
+      protocol: 5,
+      PacketType: [Object],
+      Encoder: [class Encoder],
+      Decoder: [class Decoder extends Emitter]
+    },
+    encoder: Encoder {},
+    _adapter: [class Adapter extends EventEmitter],
+    sockets: [Circular *1],
+    opts: { cors: [Object] },
+    eio: Server {
+      _events: [Object: null prototype],
+      _eventsCount: 1,
+      _maxListeners: undefined,
+      clients: [Object],
+      clientsCount: 1,
+      opts: [Object],
+      corsMiddleware: [Function: corsMiddleware],
+      ws: [WebSocketServer],
+      [Symbol(kCapture)]: false
+    },
+    httpServer: Server {
+      maxHeaderSize: undefined,
+      insecureHTTPParser: undefined,
+      _events: [Object: null prototype],
+      _eventsCount: 5,
+      _maxListeners: undefined,
+      _connections: 3,
+      _handle: [TCP],
+      _usingWorkers: false,
+      _workers: [],
+      _unref: false,
+      allowHalfOpen: true,
+      pauseOnConnect: false,
+      httpAllowHalfOpen: false,
+      timeout: 0,
+      keepAliveTimeout: 5000,
+      maxHeadersCount: null,
+      maxRequestsPerSocket: 0,
+      headersTimeout: 60000,
+      requestTimeout: 0,
+      _connectionKey: '6::::5000',
+      [Symbol(IncomingMessage)]: [Function: IncomingMessage],
+      [Symbol(ServerResponse)]: [Function: ServerResponse],
+      [Symbol(kCapture)]: false,
+      [Symbol(async_id_symbol)]: 6
+    },
+    engine: Server {
+      _events: [Object: null prototype],
+      _eventsCount: 1,
+      _maxListeners: undefined,
+      clients: [Object],
+      clientsCount: 1,
+      opts: [Object],
+      corsMiddleware: [Function: corsMiddleware],
+      ws: [WebSocketServer],
+      [Symbol(kCapture)]: false
+    },
+    [Symbol(kCapture)]: false
+  },
+  name: '/',
+  adapter: Adapter {
+    _events: [Object: null prototype] {},
+    _eventsCount: 0,
+    _maxListeners: undefined,
+    nsp: [Circular *1],
+    rooms: Map(2) {
+      'pM-P5m2NeOY4_HdlAAAD' => [Set],
+      'b0c474d2-ab21-40a6-9b29-c7f78664c785' => [Set]
+    },
+    sids: Map(1) { 'pM-P5m2NeOY4_HdlAAAD' => [Set] },
+    encoder: Encoder {},
+    [Symbol(kCapture)]: false
+  },
+  [Symbol(kCapture)]: false
+}
