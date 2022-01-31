@@ -24,9 +24,14 @@ import "./Room.css";
 
 const Room = () => {
   let [searchParams] = useSearchParams();
+  let userDetails = {
+    roomID: searchParams.get("room"),
+    username: searchParams.get("name"),
+  };
   let inviteLink = `http://localhost:3000/?room=${searchParams.get("room")}`;
   useEffect(() => {
     socket.connect();
+    socket.emit("join", userDetails);
     socket.on("connect", () => {
       const engine = socket.io.engine;
       console.log(engine.transport.name); // in most cases, prints "polling"
@@ -34,6 +39,10 @@ const Room = () => {
         // called when the transport is upgraded (i.e. from HTTP long-polling to WebSocket)
         console.log(engine.transport.name); // in most cases, prints "websocket"
       });
+    });
+    socket.emit("hello!");
+    socket.on("Welcome", (msg) => {
+      console.log(msg);
     });
   }, []);
   return (
@@ -47,8 +56,8 @@ const Room = () => {
       <div className="container-wrapper">
         <VideoContainer room={searchParams.get("room")} />
         <ChatContainer
-          room={searchParams.get("room")}
-          username={searchParams.get("name")}
+          room={userDetails.roomID}
+          username={userDetails.username}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { socket } from "../../services/socket";
 import MessageBox from "../MessageBox/MessageBox";
 import "./ChatContainer.css";
@@ -6,25 +6,7 @@ import "./ChatContainer.css";
 const ChatContainer = ({ room, username }) => {
   let [messages, setMessages] = useState([]);
   let [message, setMessage] = useState("");
-  const getUserDetails = useCallback(() => {
-    const userDetails = {
-      roomID: room,
-      username: username,
-    };
-    return userDetails;
-  }, [room, username]);
-
-  useEffect(() => {
-    let userDetails = getUserDetails();
-    socket.emit("join", userDetails);
-  }, [getUserDetails]);
-
-  useEffect(() => {
-    socket.emit("hello!");
-    socket.on("Welcome", (msg) => {
-      console.log(msg);
-    });
-  }, []);
+  const getUserDetails = () => ({ roomID: room, username: username });
 
   useEffect(() => {
     socket.on("server_message", (msg) => {
