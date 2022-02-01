@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import ChatContainer from "../../components/ChatContainer/ChatContainer";
-// import AudioContainer from "../../components/AudioContainer/AudioContainer";
 import VideoContainer from "../../components/VideoContainer/VideoContainer";
 import { socket } from "../../services/socket";
 import "./Room.css";
@@ -24,34 +23,48 @@ import "./Room.css";
 
 const Room = () => {
   let [searchParams] = useSearchParams();
-  let userDetails = {
-    roomID: searchParams.get("room"),
-    username: searchParams.get("name"),
-  };
   let inviteLink = `http://localhost:3000/?room=${searchParams.get("room")}`;
+  let getUserDetails = useCallback(
+    () => ({
+      roomID: searchParams.get("room"),
+      username: searchParams.get("name"),
+    }),
+    [searchParams]
+  );
+
   useEffect(() => {
-    socket.auth = userDetails;
+    socket.auth = getUserDetails();
     socket.connect();
-    // socket.emit("join", userDetails);
+  }, [getUserDetails]);
+
+  useEffect(() => {
+    // when client connects to the server
     socket.on("connect", () => {
-      const engine = socket.io.engine;
+      let engine = socket.io.engine;
       console.log(engine.transport.name); // in most cases, prints "polling"
       engine.once("upgrade", () => {
         // called when the transport is upgraded (i.e. from HTTP long-polling to WebSocket)
         console.log(engine.transport.name); // in most cases, prints "websocket"
       });
     });
+    // client-server
     socket.emit("hello!");
-    socket.on("Welcome", (msg) => {
+    socket.on("welcome", (msg) => {
       console.log(msg);
     });
+    // for errors
     socket.on("error", (err) => alert(err.message));
 
+    // host specific message
+    socket.on("host", (msg) => console.log(msg));
+
     return () => {
-      socket.off("Welcome");
+      socket.off("welcome");
       socket.off("connect");
+      socket.off("error");
     };
   }, []);
+
   return (
     <div>
       <p>
@@ -61,10 +74,10 @@ const Room = () => {
         </a>
       </p>
       <div className="container-wrapper">
-        <VideoContainer room={searchParams.get("room")} />
+        <VideoContainer room={getUserDetails().roomID} />
         <ChatContainer
-          room={userDetails.roomID}
-          username={userDetails.username}
+          room={getUserDetails().roomID}
+          username={getUserDetails().username}
         />
       </div>
     </div>

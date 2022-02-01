@@ -18,9 +18,13 @@ const {
   userDisconnect,
 } = require("./userDetails.js");
 
-const { addHost, getHostSocketID } = require("./host.js");
+const {
+  addHost,
+  getHostSocketID,
+  checkHost,
+  changeHostOnDisconnect,
+} = require("./host.js");
 const { rooms, hosts } = require("./db.js");
-const { isStringObject } = require("util/types");
 
 //  Body parser middleware
 app.use(express.json());
@@ -61,7 +65,7 @@ app.post("/", (req, res, next) => {
 const returnClients = (roomID) => io.of("/").adapter.rooms.get(roomID);
 const logger = (socket) => {
   const clients = returnClients(socket.roomID);
-  console.log(`${socket.username} joined ${socket.roomID}`);
+  console.log(`${socket.username} -> ${socket.roomID}`);
   console.log("DB: ", rooms);
   console.log(`server ${socket.roomID}: `, clients);
   console.log("hosts", hosts);
@@ -71,7 +75,7 @@ io.on("connection", (socket) => {
   //io handshake
   socket.on("hello!", () => {
     //client-io handshake
-    socket.emit("Welcome", "welcome to the server!");
+    socket.emit("welcome", "welcome to the server!");
   });
 
   //user connects
@@ -90,13 +94,15 @@ io.on("connection", (socket) => {
   if (isHost) {
     // socket is the host
     console.log("host");
-    socket.isHost = true;
+    // socket.isHost = true;
     addHost(socket.id, socket.roomID);
+    io.to(socket.id).emit("host", "you're the host");
   } else {
     // socket is not the host
     console.log("not host");
-    socket.isHost = false;
+    // socket.isHost = false;
     let hostSocketID = getHostSocketID(socket.roomID);
+    // sync with host start
     io.to(hostSocketID).emit("getHostData", "bhejde bhai pls!", socket.id);
   }
 
@@ -105,8 +111,9 @@ io.on("connection", (socket) => {
     msg: `${socket.username} has joined the room`,
   });
 
+  // syncing new client with host
   socket.on("syncHost", (video, socketID) => {
-    console.log("data recieved by server", video);
+    // console.log("data recieved by server", video);
     io.to(socketID).emit("videoEvent", video, "sync");
   });
 
@@ -118,30 +125,29 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnecting", () => {
-    let roomsConnected = [...socket.rooms];
-    // console.log(roomsConnected);
-    socket.to(roomsConnected[1]).emit("server_message", {
+    let roomID = socket.roomID;
+    if (checkHost(socket.id, roomID)) {
+      changeHostOnDisconnect(roomID);
+      io.to(getHostSocketID(roomID)).emit("host", "you're the new host");
+    }
+    socket.to(roomID).emit("server_message", {
       username: "server",
       msg: `${socket.username} has left the room`,
     });
-    userDisconnect(socket.username, roomsConnected[1]);
-    // console.log(`${socket.username} disconnected`);
+    userDisconnect(socket.username, roomID);
+    console.log(`${socket.username} disconnected`);
+    logger(socket);
   });
 
   // catching video events
-  socket.on("videoEvent", (roomID, video, type, extra) => {
+  socket.on("videoEvent", (roomID, video, type) => {
     // broadcasting event to all except sender clients in the room
-    // if (hosts[roomID] === socket.id) {
-    //   console.log("host haramkhor!", extra);
-    // } else {
-    //   console.log("extra", type, extra);
-    // }
-    socket.broadcast.to(roomID).emit("videoEvent", video, type, "nope");
+    socket.broadcast.to(roomID).emit("videoEvent", video, type);
   });
 
   // logger function because socket.io middleware causing network problems
   // check network tab after adding logger middleware
-  // logger(socket);
+  logger(socket);
 });
 
 const PORT = process.env.PORT || 5000;
