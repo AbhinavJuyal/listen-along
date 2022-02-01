@@ -1,4 +1,4 @@
-const rooms = require("./db");
+const { rooms } = require("./db");
 
 //when check whether the username already exists in the session or not
 const checkUserName = (user) => {
@@ -14,12 +14,10 @@ const userConnect = (user) => {
   if (!rooms[user.roomID]) {
     rooms[user.roomID] = [];
   } else if (checkUserName(user)) {
-    return {
-      error: "username already exists",
-    };
+    return "Username already exists!"
   }
-  rooms[user.roomID].push({ socketId: user.socketId, username: user.username });
-  console.log("DB: ", rooms);
+  rooms[user.roomID].push({ socketID: user.socketID, username: user.username });
+  // console.log("DB: ", rooms);
 };
 
 //when user leaves the session
@@ -30,7 +28,7 @@ const userDisconnect = (username, roomID) => {
   if (rooms[roomID]?.length === 0) {
     delete rooms[roomID];
   }
-  console.log("DB: ",rooms);
+  // console.log("DB: ",rooms); 
 };
 
 module.exports = {

@@ -23,6 +23,7 @@ const Login = () => {
       navigate(`/lobby?name=${username}&room=${navRoomID}`);
     } catch (err) {
       console.error(err.response.data);
+      alert(err.response.data);
       setLoading(false);
     }
   };

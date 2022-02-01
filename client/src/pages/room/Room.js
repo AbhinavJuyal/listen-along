@@ -30,8 +30,9 @@ const Room = () => {
   };
   let inviteLink = `http://localhost:3000/?room=${searchParams.get("room")}`;
   useEffect(() => {
+    socket.auth = userDetails;
     socket.connect();
-    socket.emit("join", userDetails);
+    // socket.emit("join", userDetails);
     socket.on("connect", () => {
       const engine = socket.io.engine;
       console.log(engine.transport.name); // in most cases, prints "polling"
@@ -44,6 +45,12 @@ const Room = () => {
     socket.on("Welcome", (msg) => {
       console.log(msg);
     });
+    socket.on("error", (err) => alert(err.message));
+
+    return () => {
+      socket.off("Welcome");
+      socket.off("connect");
+    };
   }, []);
   return (
     <div>

@@ -1,3 +1,4 @@
 const rooms = {};
+const hosts = {};
 
-module.exports = rooms;
+module.exports = { rooms, hosts };

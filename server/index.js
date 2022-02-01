@@ -17,8 +17,10 @@ const {
   checkUserName,
   userDisconnect,
 } = require("./userDetails.js");
-// const consoleDB = require("./dbLogger.js");
-const rooms = require("./db.js");
+
+const { addHost, getHostSocketID } = require("./host.js");
+const { rooms, hosts } = require("./db.js");
+const { isStringObject } = require("util/types");
 
 //  Body parser middleware
 app.use(express.json());
@@ -56,42 +58,56 @@ app.post("/", (req, res, next) => {
   res.status(400).send(msg);
 });
 
-io.on("connection", (socket) => {
-  const returnClients = (roomID) => io.sockets.adapter.rooms.get(roomID);
+const returnClients = (roomID) => io.of("/").adapter.rooms.get(roomID);
+const logger = (socket) => {
+  const clients = returnClients(socket.roomID);
+  console.log(`${socket.username} joined ${socket.roomID}`);
+  console.log("DB: ", rooms);
+  console.log(`server ${socket.roomID}: `, clients);
+  console.log("hosts", hosts);
+};
 
+io.on("connection", (socket) => {
   //io handshake
   socket.on("hello!", () => {
     //client-io handshake
     socket.emit("Welcome", "welcome to the server!");
   });
 
-  //when user connects to existing session
-  socket.on("join", ({ username, roomID }) => {
-    //checks and add user to the db
-    let res = userConnect({ socketId: socket.id, roomID, username });
-    if (res) {
-      console.log("join event:", res.error);
-      io.to(socket.id).emit("error", { msg: res.error });
-      return;
-    }
-    socket.username = username; //adding username attribute for further use
-    socket.join(roomID);
-    // syncing new client with current video state
-    // let activeClients = [...returnClients(roomID)];
-    // if (activeClients?.size > 1) {
-    //   socket
-    //     .to(activeClients[0])
-    //     .emit("video-state", { lastTS: 0, type: "join" }, (res) => {
-    //       socket.emit("video-state", { lastTS: res.lastTS, type: "seek" });
-    //     });
-    // }
-    console.log(`${username} joined ${roomID}`);
-    socket.broadcast.to(roomID).emit("server_message", {
-      username: "server",
-      msg: `${username} has joined the room`,
-    });
-    const clients = returnClients(roomID);
-    console.log(`server ${roomID}: `, clients);
+  //user connects
+  let userObj = socket.handshake.auth;
+  let fnResult = userConnect({ ...userObj, socketID: socket.id });
+  if (fnResult) {
+    socket.emit("error", { message: fnResult });
+  }
+  socket.username = userObj.username; //  adding username attribute for further use
+  socket.roomID = userObj.roomID; //  adding roomID attribute for further use
+  socket.join(userObj.roomID); // joining room
+
+  // should socket be a host or not
+  let activeClients = [...returnClients(socket.roomID)];
+  let isHost = activeClients?.length === 1;
+  if (isHost) {
+    // socket is the host
+    console.log("host");
+    socket.isHost = true;
+    addHost(socket.id, socket.roomID);
+  } else {
+    // socket is not the host
+    console.log("not host");
+    socket.isHost = false;
+    let hostSocketID = getHostSocketID(socket.roomID);
+    io.to(hostSocketID).emit("getHostData", "bhejde bhai pls!", socket.id);
+  }
+
+  socket.broadcast.to(socket.roomID).emit("server_message", {
+    username: "server",
+    msg: `${socket.username} has joined the room`,
+  });
+
+  socket.on("syncHost", (video, socketID) => {
+    console.log("data recieved by server", video);
+    io.to(socketID).emit("videoEvent", video, "sync");
   });
 
   socket.on("client_message", (data) => {
@@ -103,24 +119,29 @@ io.on("connection", (socket) => {
 
   socket.on("disconnecting", () => {
     let roomsConnected = [...socket.rooms];
-    console.log(roomsConnected);
+    // console.log(roomsConnected);
     socket.to(roomsConnected[1]).emit("server_message", {
       username: "server",
       msg: `${socket.username} has left the room`,
     });
     userDisconnect(socket.username, roomsConnected[1]);
-    console.log(`${socket.username} disconnected`);
+    // console.log(`${socket.username} disconnected`);
   });
 
-  // catching video-events
-  socket.on("video-event", ({ roomID, video, type }) => {
-    // broadcasting event to all clients in the room
-    socket.broadcast.to(roomID).emit("video-event", {
-      video,
-      type,
-    });
+  // catching video events
+  socket.on("videoEvent", (roomID, video, type, extra) => {
+    // broadcasting event to all except sender clients in the room
+    // if (hosts[roomID] === socket.id) {
+    //   console.log("host haramkhor!", extra);
+    // } else {
+    //   console.log("extra", type, extra);
+    // }
+    socket.broadcast.to(roomID).emit("videoEvent", video, type, "nope");
   });
-  
+
+  // logger function because socket.io middleware causing network problems
+  // check network tab after adding logger middleware
+  // logger(socket);
 });
 
 const PORT = process.env.PORT || 5000;

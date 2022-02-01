@@ -6,9 +6,10 @@ import ReactPlayer from "react-player/youtube";
 import "./VideoContainer.css";
 
 const initialVideoState = {
+  ready: false,
   url: null,
   pip: false,
-  playing: true,
+  playing: false,
   controls: true,
   light: false,
   volume: 0.8,
@@ -25,23 +26,37 @@ const VideoContainer = ({ room }) => {
   let [video, setVideo] = useState(initialVideoState);
   let [link] = useState("https://www.youtube.com/watch?v=rqtEGrSGFvw");
   let reactPlayerRef = useRef(null);
+  let syncState = useRef();
 
   const videoEventEmit = (type) => {
     // emiting video events
-    console.log("type", type);
-    console.log("video", video);
-    socket.emit("video-event", {
-      roomID: room,
-      video,
-      type,
-    });
+    socket.emit("videoEvent", room, video, type, "nope");
+    // socket.emit("videoEvent", {
+    //   roomID: room,
+    //   video,
+    //   type,
+    // });
   };
 
   useEffect(() => {
-    socket.on("video-event", ({ video, type }) => {
+    socket.on("getHostData", (string, socketID) => {
+      console.log(string);
+      // console.log("sending current played", video.played);
+      socket.emit("syncHost", video, socketID);
+    });
+  }, [video, room]);
+
+  useEffect(() => {
+    socket.on("videoEvent", (video, type) => {
+      console.log(type);
       setVideo(video);
       if (type === "seek") {
+        console.log("seeking ek min ruk!");
         reactPlayerRef.current.seekTo(video.played);
+      } else if (type === "sync") {
+        console.log("syncState added");
+        syncState.current = video;
+        console.log(syncState);
       }
     });
   }, []);
@@ -64,7 +79,7 @@ const VideoContainer = ({ room }) => {
   };
 
   const handleProgress = (state) => {
-    // console.log("handleProgress");
+    console.log("progress", state.played);
     if (!video["seeking"]) {
       setVideo({ ...video, played: state.played, loaded: state.loaded });
     }
@@ -89,8 +104,8 @@ const VideoContainer = ({ room }) => {
   };
 
   const handleOnReady = () => {
-    // setLastTS(video.played);
-    // videoStateEmit();
+    console.log("easy professional development", syncState.current);
+    reactPlayerRef.current.seekTo(syncState.current?.played);
   };
 
   const handleOnStart = () => {
