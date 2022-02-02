@@ -71,6 +71,7 @@ const logger = (socket) => {
   console.log("hosts", hosts);
 };
 
+let count = 0;
 io.on("connection", (socket) => {
   //io handshake
   socket.on("hello!", () => {
@@ -103,6 +104,8 @@ io.on("connection", (socket) => {
     // socket.isHost = false;
     let hostSocketID = getHostSocketID(socket.roomID);
     // sync with host start
+    count++;
+    console.log(count);
     io.to(hostSocketID).emit("getHostData", "bhejde bhai pls!", socket.id);
   }
 
@@ -136,18 +139,18 @@ io.on("connection", (socket) => {
     });
     userDisconnect(socket.username, roomID);
     console.log(`${socket.username} disconnected`);
-    logger(socket);
+    // logger(socket);
   });
 
   // catching video events
-  socket.on("videoEvent", (roomID, video, type) => {
+  socket.on("videoEvent", (roomID, type, data) => {
     // broadcasting event to all except sender clients in the room
-    socket.broadcast.to(roomID).emit("videoEvent", video, type);
+    socket.broadcast.to(roomID).emit("videoEvent", data, type);
   });
 
   // logger function because socket.io middleware causing network problems
   // check network tab after adding logger middleware
-  logger(socket);
+  // logger(socket);
 });
 
 const PORT = process.env.PORT || 5000;

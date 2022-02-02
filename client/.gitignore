@@ -22,3 +22,28 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+# // useEffect(() => {
+#   //   const getVideo = async () => {
+#   //     let yt = axios.create({
+#   //       baseURL: "https://www.googleapis.com/youtube/v3",
+#   //       params: {
+#   //         part: "snippet",
+#   //         maxResult: 1,
+#   //         type: "video",
+#   //         key: "AIzaSyBAhSNgo-ooNq0qEWw594DQRJm5IjEEuaY",
+#   //       },
+#   //     });
+#   //     const response = await yt.get("/search", {
+#   //       params: {
+#   //         q: "love you anyway takayan",
+#   //       },
+#   //     });
+#   //     console.log(response);
+#   //     setLink(
+#   //       `https://www.youtube.com/embed/${response.data.items[0].id.videoId}`
+#   //     );
+#   //   };
+#   //   getVideo();
+#   // }, []);

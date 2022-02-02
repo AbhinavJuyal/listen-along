@@ -32,6 +32,7 @@ const Room = () => {
     [searchParams]
   );
 
+  // useEffect(() => setCount((prev) => prev + 1));
   useEffect(() => {
     socket.auth = getUserDetails();
     socket.connect();

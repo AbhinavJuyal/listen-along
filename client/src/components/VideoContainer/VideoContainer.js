@@ -1,13 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ReactComponent as Play } from "../../assets/play.svg";
-import { ReactComponent as Pause } from "../../assets/pause.svg";
 import { socket } from "../../services/socket";
 import ReactPlayer from "react-player/youtube";
+import VideoURLForm from "../VideoURLForm/VideoURLForm";
+import VideoControls from "../VideoControls/VideoControls";
+import VideoPlayList from "../VideoPlayList/VideoPlayList";
 import "./VideoContainer.css";
 
+// https://www.youtube.com/watch?v=v4WsQsRgbls
+// https://www.youtube.com/watch?v=rqtEGrSGFvw
 const initialVideoState = {
   ready: false,
-  url: null,
+  url: "https://www.youtube.com/watch?v=rqtEGrSGFvw",
   pip: false,
   playing: false,
   controls: true,
@@ -24,46 +27,72 @@ const initialVideoState = {
 // takayan: "https://www.youtube.com/watch?v=v4WsQsRgbls"
 const VideoContainer = ({ room }) => {
   let [video, setVideo] = useState(initialVideoState);
-  let [link] = useState("https://www.youtube.com/watch?v=rqtEGrSGFvw");
+  let [playList, setPlayList] = useState(["sfohoeshfoeshfo"]);
   let reactPlayerRef = useRef(null);
   let syncState = useRef();
 
-  const videoEventEmit = (type) => {
+  const videoEventEmit = (type, URL) => {
     // emiting video events
-    socket.emit("videoEvent", room, video, type, "nope");
-    // socket.emit("videoEvent", {
-    //   roomID: room,
-    //   video,
-    //   type,
-    // });
+    let data = {};
+    console.log("videoEventEmit", video.url);
+    switch (type) {
+      case "seek":
+        data = { playing: video.playing, played: video.played };
+        break;
+      case "sync":
+        data = video;
+        break;
+      case "URL":
+        data = { URL };
+        break;
+      default:
+        break;
+    }
+    socket.emit("videoEvent", room, type, data);
   };
 
   useEffect(() => {
     socket.on("getHostData", (string, socketID) => {
       console.log(string);
-      // console.log("sending current played", video.played);
       socket.emit("syncHost", video, socketID);
     });
   }, [video, room]);
 
   useEffect(() => {
-    socket.on("videoEvent", (video, type) => {
-      console.log(type);
-      setVideo(video);
-      if (type === "seek") {
-        console.log("seeking ek min ruk!");
-        reactPlayerRef.current.seekTo(video.played);
-      } else if (type === "sync") {
-        console.log("syncState added");
-        syncState.current = video;
-        console.log(syncState);
+    socket.on("videoEvent", (res, type) => {
+      switch (type) {
+        case "play":
+          setVideo((prev) => ({ ...prev, playing: true }));
+          break;
+        case "pause":
+          setVideo((prev) => ({ ...prev, playing: false }));
+          break;
+        case "seek":
+          setVideo((prev) => ({
+            ...prev,
+            playing: res.playing,
+            played: res.played,
+          }));
+          reactPlayerRef.current.seekTo(res.played);
+          break;
+        case "sync":
+          console.log("syncState added");
+          syncState.current = res;
+          break;
+        case "URL":
+          setVideo({ ...initialVideoState, url: res.URL });
+          break;
+        default:
+          console.warn("no type!");
       }
     });
   }, []);
 
+  // VideoControls Functions
   const handlePlayPause = () => {
     console.log("handlePlayPause");
     setVideo({ ...video, playing: !video.playing });
+    return video.playing;
   };
 
   const handlePlay = () => {
@@ -79,7 +108,7 @@ const VideoContainer = ({ room }) => {
   };
 
   const handleProgress = (state) => {
-    console.log("progress", state.played);
+    // console.log("progress", state.played);
     if (!video["seeking"]) {
       setVideo({ ...video, played: state.played, loaded: state.loaded });
     }
@@ -104,48 +133,32 @@ const VideoContainer = ({ room }) => {
   };
 
   const handleOnReady = () => {
-    console.log("easy professional development", syncState.current);
-    reactPlayerRef.current.seekTo(syncState.current?.played);
+    if (syncState.current) {
+      console.log("easy professional development", syncState.current);
+      reactPlayerRef.current.seekTo(syncState.current.played);
+      syncState.current = null;
+    }
   };
 
-  const handleOnStart = () => {
-    // setLastTS(video.played);
-    // videoStateEmit();
+  const handleOnStart = () => {};
+
+  // VideoPlayList functions
+  const handleOnURLChange = (URL) => {
+    setVideo((prev) => ({ ...prev, url: URL }));
+    videoEventEmit("URL", URL);
   };
 
-  // useEffect(() => {
-  //   const getVideo = async () => {
-  //     let yt = axios.create({
-  //       baseURL: "https://www.googleapis.com/youtube/v3",
-  //       params: {
-  //         part: "snippet",
-  //         maxResult: 1,
-  //         type: "video",
-  //         key: "AIzaSyBAhSNgo-ooNq0qEWw594DQRJm5IjEEuaY",
-  //       },
-  //     });
-  //     const response = await yt.get("/search", {
-  //       params: {
-  //         q: "love you anyway takayan",
-  //       },
-  //     });
-  //     console.log(response);
-  //     setLink(
-  //       `https://www.youtube.com/embed/${response.data.items[0].id.videoId}`
-  //     );
-  //   };
-  //   getVideo();
-  // }, []);
+  const addURLToPlayList = (URL) => {
+    setPlayList((prev) => [...prev, URL]);
+  };
 
   return (
     <div className="video-container">
-      {/* <form>
-        <input type="text" placeholder="Enter a link"/>
-      </form> */}
+      <VideoURLForm addURL={addURLToPlayList} />
       <div className="react-player-container">
         <ReactPlayer
           ref={reactPlayerRef}
-          url={link}
+          url={video.url}
           className="react-player-video"
           width="100%"
           height="100%"
@@ -166,25 +179,14 @@ const VideoContainer = ({ room }) => {
           // onDuration={handleDuration}
         />
       </div>
-
-      <div className="video-controls">
-        <div className="video-control-progress">
-          <input
-            type="range"
-            width="100%"
-            min={0}
-            max={0.999999}
-            step="any"
-            value={video["played"]}
-            onMouseDown={handleSeekMouseDown}
-            onChange={handleSeekChange}
-            onMouseUp={handleSeekMouseUp}
-          />
-        </div>
-        <button className="video-control-play-pause" onClick={handlePlayPause}>
-          {video["playing"] ? <Pause /> : <Play />}
-        </button>
-      </div>
+      <VideoControls
+        video={video}
+        handleSeekMouseDown={handleSeekMouseDown}
+        handleSeekChange={handleSeekChange}
+        handleSeekMouseUp={handleSeekMouseUp}
+        handlePlayPause={handlePlayPause}
+      />
+      <VideoPlayList playList={playList} />
     </div>
   );
 };
