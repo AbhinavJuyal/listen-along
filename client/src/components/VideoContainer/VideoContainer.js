@@ -1,65 +1,51 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import { socket } from "../../services/socket";
 import ReactPlayer from "react-player/youtube";
 import VideoURLForm from "../VideoURLForm/VideoURLForm";
 import VideoControls from "../VideoControls/VideoControls";
 import VideoPlayList from "../VideoPlayList/VideoPlayList";
 import "./VideoContainer.css";
+import useVideo from "../../context/VideoContext";
 
 // https://www.youtube.com/watch?v=v4WsQsRgbls
 // https://www.youtube.com/watch?v=rqtEGrSGFvw
-const initialVideoState = {
-  ready: false,
-  url: "https://www.youtube.com/watch?v=rqtEGrSGFvw",
-  pip: false,
-  playing: false,
-  controls: true,
-  light: false,
-  volume: 0.8,
-  muted: false,
-  played: 0,
-  loaded: 0,
-  duration: 0,
-  playbackRate: 1.0,
-  loop: true,
-};
+// https://www.youtube.com/watch?v=coV6Vc5POhM
+// https://www.youtube.com/watch?v=-wpTY3LM5bc
 
 // takayan: "https://www.youtube.com/watch?v=v4WsQsRgbls"
 const VideoContainer = ({ room }) => {
-  let [video, setVideo] = useState(initialVideoState);
-  let [playList, setPlayList] = useState(["sfohoeshfoeshfo"]);
-  let reactPlayerRef = useRef(null);
-  let syncState = useRef();
-
-  const videoEventEmit = (type, URL) => {
-    // emiting video events
-    let data = {};
-    console.log("videoEventEmit", video.url);
-    switch (type) {
-      case "seek":
-        data = { playing: video.playing, played: video.played };
-        break;
-      case "sync":
-        data = video;
-        break;
-      case "URL":
-        data = { URL };
-        break;
-      default:
-        break;
-    }
-    socket.emit("videoEvent", room, type, data);
-  };
+  let {
+    video,
+    setVideo,
+    // initialVideoState,
+    playList,
+    setPlayList,
+    reactPlayerRef,
+    syncState,
+    handlePlayPause,
+    handlePlay,
+    handlePause,
+    handleProgress,
+    handleSeekMouseDown,
+    handleSeekMouseUp,
+    handleSeekChange,
+    handleOnStart,
+    handleOnReady,
+    handleOnEnded,
+    // handleOnURLChange,
+    addURLToPlayList,
+  } = useVideo();
 
   useEffect(() => {
     socket.on("getHostData", (string, socketID) => {
       console.log(string);
-      socket.emit("syncHost", video, socketID);
+      socket.emit("syncHost", { video, playList }, socketID);
     });
-  }, [video, room]);
+  }, [room, video, playList]);
 
   useEffect(() => {
-    socket.on("videoEvent", (res, type) => {
+    socket.on("videoEvent", (type, data) => {
+      console.log("type", type);
       switch (type) {
         case "play":
           setVideo((prev) => ({ ...prev, playing: true }));
@@ -70,87 +56,23 @@ const VideoContainer = ({ room }) => {
         case "seek":
           setVideo((prev) => ({
             ...prev,
-            playing: res.playing,
-            played: res.played,
+            playing: data.playing,
+            played: data.played,
           }));
-          reactPlayerRef.current.seekTo(res.played);
+          reactPlayerRef.current.seekTo(data.played);
           break;
         case "sync":
           console.log("syncState added");
-          syncState.current = res;
+          syncState.current = data;
           break;
-        case "URL":
-          setVideo({ ...initialVideoState, url: res.URL });
+        case "playList":
+          setPlayList((prev) => [...prev, data.URL]);
           break;
         default:
-          console.warn("no type!");
+          console.warn("videoEvent.on() no type!");
       }
     });
-  }, []);
-
-  // VideoControls Functions
-  const handlePlayPause = () => {
-    console.log("handlePlayPause");
-    setVideo({ ...video, playing: !video.playing });
-    return video.playing;
-  };
-
-  const handlePlay = () => {
-    console.log("handlePlay");
-    setVideo({ ...video, playing: true });
-    videoEventEmit("play");
-  };
-
-  const handlePause = () => {
-    console.log("handlePause");
-    setVideo({ ...video, playing: false });
-    videoEventEmit("pause");
-  };
-
-  const handleProgress = (state) => {
-    // console.log("progress", state.played);
-    if (!video["seeking"]) {
-      setVideo({ ...video, played: state.played, loaded: state.loaded });
-    }
-  };
-
-  const handleSeekMouseDown = (e) => {
-    console.log("handleSeekMouseDown");
-    setVideo({ ...video, seeking: true });
-  };
-
-  const handleSeekMouseUp = (e) => {
-    console.log("handleSeekMouseUp");
-    // setVideo and reactPlayerRef order needs to be like this
-    setVideo({ ...video, seeking: false });
-    reactPlayerRef.current.seekTo(e.target.value);
-    videoEventEmit("seek");
-  };
-
-  const handleSeekChange = (e) => {
-    console.log("handleSeekChange");
-    setVideo({ ...video, played: parseFloat(e.target.value) });
-  };
-
-  const handleOnReady = () => {
-    if (syncState.current) {
-      console.log("easy professional development", syncState.current);
-      reactPlayerRef.current.seekTo(syncState.current.played);
-      syncState.current = null;
-    }
-  };
-
-  const handleOnStart = () => {};
-
-  // VideoPlayList functions
-  const handleOnURLChange = (URL) => {
-    setVideo((prev) => ({ ...prev, url: URL }));
-    videoEventEmit("URL", URL);
-  };
-
-  const addURLToPlayList = (URL) => {
-    setPlayList((prev) => [...prev, URL]);
-  };
+  }, [reactPlayerRef, setPlayList, setVideo, syncState]);
 
   return (
     <div className="video-container">
@@ -174,6 +96,7 @@ const VideoContainer = ({ room }) => {
           onStart={handleOnStart}
           onPlay={handlePlay}
           onPause={handlePause}
+          onEnded={handleOnEnded}
           onError={(e) => console.log("onError", e)}
           onProgress={handleProgress}
           // onDuration={handleDuration}

@@ -115,9 +115,9 @@ io.on("connection", (socket) => {
   });
 
   // syncing new client with host
-  socket.on("syncHost", (video, socketID) => {
+  socket.on("syncHost", (data, socketID) => {
     // console.log("data recieved by server", video);
-    io.to(socketID).emit("videoEvent", video, "sync");
+    io.to(socketID).emit("videoEvent", "sync", data);
   });
 
   socket.on("client_message", (data) => {
@@ -145,7 +145,7 @@ io.on("connection", (socket) => {
   // catching video events
   socket.on("videoEvent", (roomID, type, data) => {
     // broadcasting event to all except sender clients in the room
-    socket.broadcast.to(roomID).emit("videoEvent", data, type);
+    socket.broadcast.to(roomID).emit("videoEvent", type, data);
   });
 
   // logger function because socket.io middleware causing network problems

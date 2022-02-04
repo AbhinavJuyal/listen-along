@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import ChatContainer from "../../components/ChatContainer/ChatContainer";
 import VideoContainer from "../../components/VideoContainer/VideoContainer";
+import { VideoProvider } from "../../context/VideoContext";
 import { socket } from "../../services/socket";
 import "./Room.css";
 
@@ -75,7 +76,9 @@ const Room = () => {
         </a>
       </p>
       <div className="container-wrapper">
-        <VideoContainer room={getUserDetails().roomID} />
+        <VideoProvider>
+          <VideoContainer room={getUserDetails().roomID} />
+        </VideoProvider>
         <ChatContainer
           room={getUserDetails().roomID}
           username={getUserDetails().username}
