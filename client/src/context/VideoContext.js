@@ -107,7 +107,18 @@ export const VideoProvider = ({ children }) => {
     }
   };
 
-  const handleOnEnded = () => {};
+  const handleOnEnded = () => {
+    console.log("handleOnEnded");
+    let currentURLIdx = playList[0];
+    let nextURLIdx = currentURLIdx + 1;
+    if (nextURLIdx <= playList.length - 1) {
+      video.url = playList[nextURLIdx];
+      setPlayList((prev) => [nextURLIdx, ...prev.slice(1)]);
+    } else {
+      console.log("end of the playlist");
+    }
+    // videoEventEmit("ended");
+  };
 
   const handleOnStart = () => {};
 
