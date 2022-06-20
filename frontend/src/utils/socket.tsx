@@ -3,16 +3,26 @@ export const socket = io(import.meta.env.VITE_BASE_URL, {
   autoConnect: false,
 });
 
+const handleLocalStorage = () => {
+  console.log("inside handle");
+  const localStorage: Storage = window.localStorage;
+  localStorage.removeItem("name");
+  localStorage.removeItem("roomId");
+};
+
 socket.on("disconnect", (reason, desc) => {
+  console.log("disconnection");
   if (reason === "io server disconnect") {
     // the disconnection was initiated by the server, you need to reconnect manually
     // socket.connect();
     console.log("Error: Server Interrupt");
   }
+  // temporary: deletes the key:value in localStorage
+  // handleLocalStorage();
 });
 
 socket.on("connect_error", (error) => {
-  console.log("Error: Middleware Interrupt or low-level connection");
+  console.log("Error: Middleware Interrupt or low-level connection", error);
 });
 
 socket.on("connect", () => {
