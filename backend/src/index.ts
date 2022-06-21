@@ -23,6 +23,8 @@ const bootstrap = () => {
     res.status(200).json("lol noice!");
   });
 
+  // serving static files
+  app.use("/public", express.static("public"));
   // connectDB();
 
   const httpServer = createServer(app);

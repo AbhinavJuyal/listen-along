@@ -8,11 +8,11 @@ interface Props {
 
 const MessageInput = ({ handleSubmit, message, setMessage }: Props) => {
   return (
-    <form className="m-2" onSubmit={handleSubmit}>
-      <div className="flex w-full rounded-full px-2 py-1 my-4 bg-red-50">
+    <form className="m-2 mt-auto" onSubmit={handleSubmit}>
+      <div className="flex w-full rounded-full px-2 py-1 my-4 mt-0 bg-gray-200">
         <input
           type="text"
-          className="h-10 w-full pl-4 mr-4 bg-transparent border-none"
+          className="h-12 w-full pl-4 mr-4 bg-transparent border-none"
           value={message}
           placeholder="Type something here..."
           onChange={(e) => setMessage(e.target.value)}

@@ -1,14 +1,10 @@
-import { useState, useEffect } from "react";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { socket } from "../utils/socket";
-
-const localStorage: Storage = window.localStorage;
 
 const Login = () => {
   const navigate = useNavigate();
-  // const [query, setQuery] = useSearchParams();
-  // console.log(query.get("id"));
-  // work around to get query params T-T
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
   const query = Object.keys(params)[0];
@@ -18,17 +14,18 @@ const Login = () => {
   const handleSocketConnection = (name: string, roomId: string | null) => {
     socket.auth = { name, roomId };
     socket.connect();
-    socket.on("join", (name, roomId) => {
-      // localStorage.setItem("name", name);
-      // localStorage.setItem("roomId", roomId);
+    socket.on("join", (name, roomId, imgId) => {
       console.log("connection established", name, roomId);
-      navigate(`/room`, { replace: true, state: { name, roomId } });
+      navigate(`/room`, { replace: true, state: { name, roomId, imgId } });
     });
-    // socket.off("join");
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (name === "") {
+      toast.error("You need to give a nickname");
+      return;
+    }
     handleSocketConnection(name, roomId);
   };
 

@@ -1293,6 +1293,7 @@ __metadata:
     postcss: ^8.4.14
     react: ^18.0.0
     react-dom: ^18.0.0
+    react-hot-toast: ^2.2.0
     react-icons: ^4.4.0
     react-router-dom: ^6.3.0
     socket.io-client: ^4.5.1
@@ -1416,6 +1417,15 @@ __metadata:
   version: 11.12.0
   resolution: "globals@npm:11.12.0"
   checksum: 67051a45eca3db904aee189dfc7cd53c20c7d881679c93f6146ddd4c9f4ab2268e68a919df740d39c71f4445d2b38ee360fc234428baea1dbdfe68bbcb46979e
+  languageName: node
+  linkType: hard
+
+"goober@npm:^2.1.1":
+  version: 2.1.9
+  resolution: "goober@npm:2.1.9"
+  peerDependencies:
+    csstype: ^3.0.10
+  checksum: bb986e2f9a451e278986f530f3b1a389f2b95f41770fc94ff35338d1f1732998e423c7a858597e37378d97f278ccd1802d0842e5ef809daca62b867cc676c999
   languageName: node
   linkType: hard
 
@@ -2106,6 +2116,18 @@ __metadata:
   peerDependencies:
     react: ^18.2.0
   checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
+  languageName: node
+  linkType: hard
+
+"react-hot-toast@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "react-hot-toast@npm:2.2.0"
+  dependencies:
+    goober: ^2.1.1
+  peerDependencies:
+    react: ">=16"
+    react-dom: ">=16"
+  checksum: bb34ddc8ada14cbd75a37f14d2563412174e23276eb05e9fb23a031b6d8374ca190cefa1940692f4371529ddafeb2d4b8d3e5023187c2851ec8cb247461553ee
   languageName: node
   linkType: hard
 

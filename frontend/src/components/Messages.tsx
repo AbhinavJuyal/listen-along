@@ -6,21 +6,24 @@ import MessageInput from "./MessageInput";
 interface Props {
   name: string;
   roomId: string;
+  imgId: number;
 }
 
 interface Message {
   name: string;
   message: string;
+  imgId: number;
 }
 
-const Messages = ({ name, roomId }: Props) => {
+const Messages = ({ name, roomId, imgId }: Props) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
-    socket.on("message", (name, message) => {
-      setMessages((prev) => [...prev, { name, message }]);
-      console.log({ name, message });
+    // recieving messages
+    socket.on("message", (name, message, imgId) => {
+      setMessages((prev) => [...prev, { name, message, imgId }]);
+      console.log({ name, message, imgId });
     });
 
     return () => {
@@ -29,23 +32,30 @@ const Messages = ({ name, roomId }: Props) => {
   }, []);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    // sending messages
     e.preventDefault();
-    setMessages((prev) => [...prev, { name, message }]);
-    socket.emit("message", name, message);
+    setMessages((prev) => [...prev, { name, message, imgId }]);
+    socket.emit("message", name, message, imgId);
     setMessage("");
   };
 
   return (
-    <div className="Messages">
-      <div className="chat w-full">
-        <h4 className="title ml-2">Chat</h4>
-        {/* <Message message={message} name={name} /> */}
-        <div className="messageArr p-4">
+    <div className="w-full basis-1/3 flex flex-col justify-between items-stretch">
+      <h4 className="ml-2 text-2xl font-bold">Chat</h4>
+      <div>
+        <div className="p-4">
           {messages.length === 0 ? (
             <div>Messages will be here!</div>
           ) : (
             messages.map((e, idx) => {
-              return <Message name={e.name} message={e.message} />;
+              return (
+                <Message
+                  key={idx}
+                  name={e.name}
+                  message={e.message}
+                  imgId={e.imgId}
+                />
+              );
             })
           )}
         </div>

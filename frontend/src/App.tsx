@@ -1,8 +1,8 @@
-import { MemoryRouter, BrowserRouter, Routes, Route } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import Login from "./pages/Login";
 import Room from "./pages/Room";
 import Sample from "./components/Sample";
-// import "./App.css";
 
 function App() {
   return (
@@ -17,6 +17,13 @@ function App() {
           <Route path="/sample" element={<Sample />} />
         </Routes>
       </MemoryRouter>
+      <Toaster
+        position="bottom-center"
+        reverseOrder={true}
+        toastOptions={{
+          duration: 2000,
+        }}
+      />
     </div>
   );
 }
