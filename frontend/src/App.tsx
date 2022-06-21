@@ -2,12 +2,11 @@ import { MemoryRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Room from "./pages/Room";
 import Sample from "./components/Sample";
-import PrivateRoute from "./utils/PrivateRoute";
-import "./App.css";
+// import "./App.css";
 
 function App() {
   return (
-    <div className="App">
+    <div className="h-screen">
       <MemoryRouter>
         <Routes>
           <Route index element={<Login />} />

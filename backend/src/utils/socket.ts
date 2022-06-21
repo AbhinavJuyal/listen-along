@@ -3,17 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 
 export const handleWebSockets = (io: Server) => {
   console.log("handling web sockets");
-  // io.use((socket: Socket, next) => {
-  //   console.log(socket.handshake.auth.token);
-  //   console.log(socket.rooms);
-  //   console.log({
-  //     set: socket.rooms,
-  //     name: socket.data.name,
-  //   });
-  //   next();
-  // });
 
-  io.on("connection", (socket: Socket) => {
+  const handleOnConnection = (socket: Socket) => {
     const auth = socket.handshake.auth;
     let name = auth.name;
     let roomId = auth.roomId;
@@ -28,5 +19,17 @@ export const handleWebSockets = (io: Server) => {
       name: socket.data.name,
     });
     socket.emit("join", name, roomId);
+  };
+
+  const handleMessaging = (socket: Socket) => {
+    socket.on("message", (name, message) => {
+      console.log({ name, message });
+      socket.broadcast.to(socket.data.roomId).emit("message", name, message);
+    });
+  };
+
+  io.on("connection", (socket: Socket) => {
+    handleOnConnection(socket);
+    handleMessaging(socket);
   });
 };

@@ -1,7 +1,17 @@
-import React from "react";
+interface Props {
+  name: string;
+  message: string;
+}
 
-const Message = () => {
-  return <div>Message</div>;
+const Message = ({ name, message }: Props) => {
+  return (
+    <div
+      className={"message-bubble" + " " + (name === "server" && "text-center")}
+    >
+      <div className="type">{name}</div>
+      <div className="message w-full bg-gray-400 rounded-xl p-4">{message}</div>
+    </div>
+  );
 };
 
 export default Message;
