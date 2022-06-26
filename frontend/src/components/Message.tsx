@@ -14,7 +14,9 @@ const Message = ({ name, message, imgId }: Props) => {
       <img className="w-12 h-12 rounded-full mr-4" src={pf} alt={name} />
       <div className="">
         {/* <div className="font-bold ml-4 text-sm">{name}</div> */}
-        <div className="w-full bg-gray-200 rounded-xl p-4">{message}</div>
+        <div className="w-full bg-gray-200 rounded-xl p-4 text-sm">
+          {message}
+        </div>
       </div>
     </div>
   );

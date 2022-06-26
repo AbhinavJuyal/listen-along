@@ -1,37 +1,45 @@
-interface Message {
+import chalk from "chalk";
+
+interface IMessage {
   name: string;
   message: string;
   imgId: number;
 }
 
-interface MessageStoreInterface {
-  [roomId: string]: Message[];
+interface IMessageStoreInterface {
+  [roomId: string]: IMessage[];
 }
 
-interface NewMessageStoreObject extends Message {
+interface INewMessageStoreObject extends IMessage {
   roomId: string;
 }
 
 class MessageStore {
-  _messageStore: MessageStoreInterface;
+  _messageStore: IMessageStoreInterface;
   constructor() {
     this._messageStore = {};
   }
   get store() {
     return this._messageStore;
   }
+  printStore() {
+    console.log(chalk.underline.green("Message Store:"));
+    console.log(this._messageStore);
+  }
   checkStoreRoom(roomId: string) {
-    return !(typeof this._messageStore[roomId] === "undefined");
+    // true if exists
+    // false if does not exits
+    return typeof this._messageStore[roomId] !== "undefined";
   }
-  createStoreRoom(roomId: string) {
-    this._messageStore[roomId] = [];
-  }
-  mutateStore({ roomId, name, message, imgId }: NewMessageStoreObject) {
+  saveMessage({ roomId, name, message, imgId }: INewMessageStoreObject) {
+    // creates store room
+    if (!this.checkStoreRoom(roomId)) this._messageStore[roomId] = [];
     this._messageStore[roomId].push({
       name,
       message,
       imgId,
     });
+    this.printStore();
   }
 }
 

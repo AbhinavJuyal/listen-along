@@ -4,12 +4,18 @@ interface Props {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   message: string;
   setMessage: React.Dispatch<React.SetStateAction<string>>;
+  error: boolean;
 }
 
-const MessageInput = ({ handleSubmit, message, setMessage }: Props) => {
+const MessageInput = ({ handleSubmit, message, setMessage, error }: Props) => {
   return (
-    <form className="m-2 mt-auto" onSubmit={handleSubmit}>
-      <div className="flex w-full rounded-full px-2 py-1 my-4 mt-0 bg-gray-200">
+    <form className="m-2" onSubmit={handleSubmit}>
+      {error && (
+        <div className="text-xs py-2 px-2 pl-4 text-red-400">
+          Message Cannot be empty
+        </div>
+      )}
+      <div className="flex w-full rounded-full px-2 py-1 bg-gray-200">
         <input
           type="text"
           className="h-12 w-full pl-4 mr-4 bg-transparent border-none"

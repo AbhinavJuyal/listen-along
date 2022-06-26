@@ -27,13 +27,10 @@ export const handleWebSockets = (io: Server) => {
 
   const handleMessaging = (socket: Socket) => {
     socket.on("message", (name, message, imgId) => {
-      console.log({ name, message, imgId });
+      // console.log({ name, message, imgId });
       let roomId = socket.data.roomId;
       // saving data
-      if (!messageStore.checkStoreRoom(roomId))
-        messageStore.createStoreRoom(roomId);
-      messageStore.mutateStore({ roomId, name, message, imgId });
-      console.log(messageStore.store);
+      messageStore.saveMessage({ roomId, name, message, imgId });
       socket.broadcast
         .to(socket.data.roomId)
         .emit("message", name, message, imgId);

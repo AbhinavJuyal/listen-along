@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { socket } from "../utils/socket";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
@@ -18,6 +18,19 @@ interface Message {
 const Messages = ({ name, roomId, imgId }: Props) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
+  const [error, setError] = useState<boolean>(false);
+  const chatContainer = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // prev messages
+    socket.on("prevMessages", (messages) => {
+      setMessages((prev) => [...prev, messages]);
+    });
+
+    return () => {
+      socket.off("prevMessages");
+    };
+  }, []);
 
   useEffect(() => {
     // recieving messages
@@ -31,19 +44,47 @@ const Messages = ({ name, roomId, imgId }: Props) => {
     };
   }, []);
 
+  // scroll to bottom
+  useEffect(() => {
+    const chat: HTMLDivElement | null = chatContainer.current;
+    if (!chat) {
+      console.log("Chat Container element not Found!");
+      return;
+    }
+    const scrollHeight: number = chat.scrollHeight;
+    chat.scrollTo(0, scrollHeight);
+  }, [messages]);
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     // sending messages
     e.preventDefault();
+    if (message === "") {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 2000);
+      return;
+    }
     setMessages((prev) => [...prev, { name, message, imgId }]);
     socket.emit("message", name, message, imgId);
     setMessage("");
   };
 
+  const handleScroll = (e: React.HTMLAttributes<HTMLDivElement>) => {
+    const chat: HTMLDivElement | null = chatContainer.current;
+    if (chat?.scrollTop === 0) {
+    }
+  };
+
   return (
     <div className="w-full basis-1/3 flex flex-col justify-between items-stretch">
       <h4 className="ml-2 text-2xl font-bold">Chat</h4>
-      <div>
-        <div className="p-4">
+      <div className="grow shrink basis-auto flex flex-col h-96">
+        <div
+          ref={chatContainer}
+          // onScroll={handleScroll}
+          className="max-h-full p-4 overflow-y-auto mt-auto"
+        >
           {messages.length === 0 ? (
             <div>Messages will be here!</div>
           ) : (
@@ -63,6 +104,7 @@ const Messages = ({ name, roomId, imgId }: Props) => {
           handleSubmit={handleSubmit}
           message={message}
           setMessage={setMessage}
+          error={error}
         />
       </div>
     </div>
