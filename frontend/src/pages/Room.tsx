@@ -1,7 +1,7 @@
-import { socket } from "../utils/socket";
 import { useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Messages from "../components/Messages";
+import VideoContainer from "../containers/VideoContainer";
 
 interface sessionState {
   name: string;
@@ -42,10 +42,10 @@ const Room = () => {
           {btnText}
         </button>
       </div>
-      {/* <div className="grid grid-cols-2 mt-8"> */}
       <div className="grow flex">
-        {/* <div className="mt-8"> */}
-        <div className="grow basis-2/3 shrink-0">Music here</div>
+        <div className="grow basis-2/3 shrink-0">
+          <VideoContainer />
+        </div>
         <Messages name={state.name} roomId={state.roomId} imgId={state.imgId} />
       </div>
     </div>
