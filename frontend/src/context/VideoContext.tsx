@@ -1,18 +1,29 @@
-import React, { useContext, useRef, useState } from "react";
+import axios, { AxiosResponse } from "axios";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { BaseReactPlayerProps } from "react-player/base";
 import {
+  IPlayListInfo,
   IVideoContext,
   IVideoEvents,
   IVideoEventsFn,
   PlayList,
 } from "../../@types/video";
 
-// yt links
-// https://www.youtube.com/watch?v=rqtEGrSGFvw
-// https://www.youtube.com/watch?v=coV6Vc5POhM
-// https://www.youtube.com/watch?v=v4WsQsRgbls
-// https://www.youtube.com/watch?v=-wpTY3LM5bc
-// takayan: "https://www.youtube.com/watch?v=v4WsQsRgbls"
+const VideoContext = React.createContext<IVideoContext | null>(null);
+const initialVideoState: BaseReactPlayerProps = {
+  url: "https://www.youtube.com/watch?v=rqtEGrSGFvw",
+  pip: false,
+  playing: false,
+  controls: true,
+  light: false,
+  volume: 0.8,
+  muted: false,
+  played: 0,
+  loaded: 0,
+  duration: 0,
+  playbackRate: 1.0,
+  loop: false,
+};
 
 const videoEvents = ({
   video,
@@ -35,38 +46,11 @@ const videoEvents = ({
 
   const onReady = () => {
     console.log("readyy");
-    // let data = syncState.current;
-    // if (data) {
-    //   setVideo(data.video);
-    //   setPlayList(data.playList);
-    //   console.log("easy professional development", data);
-    //   console.log("seconds", data.video.played * data.video.duration);
-    //   reactPlayerRef.current.seekTo(
-    //     data.video.played * data.video.duration,
-    //     "seconds"
-    //   );
-    //   // reactPlayerRef.current.seekTo(data.played);
-    //   syncState.current = null;
-    // }
-    // setVideoReady(true);
-    // if (video.played && video.duration)
-    // reactPlayerRef.current.seekTo(video.played * video.duration, "seconds");
+    setVideoReady(true);
   };
 
   const onEnded = () => {
-    console.log("handleOnEnded");
-    let currentURLIdx = playList[0] as number;
-    let nextURLIdx = currentURLIdx + 1;
-    if (nextURLIdx <= playList.length - 1) {
-      setVideo((prev) => ({
-        ...initialVideoState,
-        playing: prev.playing,
-        url: playList[nextURLIdx],
-      }));
-      setPlayList((prev) => [nextURLIdx, ...prev.slice(1)]);
-    } else {
-      console.log("end of the playlist");
-    }
+    console.log("end of the playlist");
   };
 
   const onDuration = (duration: any) => {
@@ -80,18 +64,18 @@ const videoEvents = ({
     loaded: number;
     loadedSeconds: number;
   }): void => {
-    console.log("here!");
-    console.log("progress", state.played);
-    if (!video["seeking"]) {
-      setVideo({ ...video, played: state.played, loaded: state.loaded });
-    }
+    setVideo({ ...video, played: state.played, loaded: state.loaded });
   };
 
   const onStart = () => {
     console.log("start");
   };
-  const onError = () => {};
-  const onSeek = () => {};
+  const onError = (e: any) => {
+    console.log("Error:", e);
+  };
+  const onSeek = (sec: number) => {
+    console.log("seconds", sec);
+  };
 
   return {
     onStart,
@@ -106,27 +90,52 @@ const videoEvents = ({
   };
 };
 
-const VideoContext = React.createContext<IVideoContext | null>(null);
-const initialVideoState: BaseReactPlayerProps = {
-  url: "https://www.youtube.com/watch?v=rqtEGrSGFvw",
-  pip: false,
-  playing: false,
-  controls: true,
-  light: false,
-  volume: 0.8,
-  muted: false,
-  played: 0,
-  loaded: 0,
-  duration: 0,
-  playbackRate: 1.0,
-  loop: false,
+const extractPlayListInfo = (
+  res: AxiosResponse,
+  setPlayListItemInfo: React.Dispatch<React.SetStateAction<IPlayListInfo[]>>
+) => {
+  const extract = res.data.items.map((e: any) => {
+    return {
+      id: e.id,
+      title: e.snippet.title,
+      imgURL: e.snippet.thumbnails.standard.url,
+    };
+  });
+  setPlayListItemInfo(extract);
+  console.log(extract);
 };
 
 export const VideoProvider = ({ children }: { children: React.ReactNode }) => {
   const [video, setVideo] = useState<BaseReactPlayerProps>(initialVideoState);
-  const [playList, setPlayList] = useState<PlayList>([]);
-  const reactPlayerRef = useRef(null);
+  const [playList, setPlayList] = useState<PlayList>([
+    "rqtEGrSGFvw",
+    "coV6Vc5POhM",
+    "v4WsQsRgbls",
+    "-wpTY3LM5bc",
+  ]);
+  const [playListItemInfo, setPlayListItemInfo] = useState<IPlayListInfo[]>([]);
+  const [currentIdx, setCurrentIdx] = useState<number>(0);
+  const reactPlayerRef = useRef<any>(null);
   const [videoReady, setVideoReady] = useState<boolean>(false);
+
+  useEffect(() => {
+    // retrieving all playlist info
+    if (playList.length === 0) return;
+    console.log("inside context useEffect");
+    const ytURL: string = import.meta.env.VITE_YT_URL;
+    const ytAPIKey: string = import.meta.env.VITE_YT_API_KEY;
+    const videoIds: string = playList.join(",");
+    const url: string = `${ytURL}?id=${videoIds}&key=${ytAPIKey}&part=snippet`;
+    axios
+      .get(url)
+      .then((response: AxiosResponse) => {
+        console.log(response);
+        extractPlayListInfo(response, setPlayListItemInfo);
+      })
+      .catch((error) => {
+        if (axios.isAxiosError(error)) console.log("Axios error", error);
+      });
+  }, [playList]);
 
   let events: IVideoEvents = videoEvents({
     video,
@@ -144,6 +153,8 @@ export const VideoProvider = ({ children }: { children: React.ReactNode }) => {
     setPlayList,
     setVideoReady,
     events,
+    reactPlayerRef,
+    playListItemInfo,
   };
 
   return (

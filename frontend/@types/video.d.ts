@@ -1,6 +1,6 @@
 import { BaseReactPlayerProps } from "react-player/base";
 
-export type PlayList = (string | number)[];
+export type PlayList = string[];
 
 export interface IVideoEventsFn {
   video: BaseReactPlayerProps;
@@ -35,11 +35,17 @@ export interface IVideoEvents {
 
 export interface IVideoContext {
   video: BaseReactPlayerProps;
-  playList: (string | number)[];
+  playList: PlayList;
   videoReady: boolean;
   setVideo: React.Dispatch<React.SetStateAction<IVideo>>;
-  setPlayList: React.Dispatch<React.SetStateAction<(string | number)[]>>;
+  setPlayList: React.Dispatch<React.SetStateAction<PlayList>>;
   setVideoReady: React.Dispatch<React.SetStateAction<boolean>>;
   events: IVideoEvents;
   [otherProps: string]: any;
+}
+
+export interface IPlayListInfo {
+  id: string;
+  title: string;
+  imgUrl: string;
 }
