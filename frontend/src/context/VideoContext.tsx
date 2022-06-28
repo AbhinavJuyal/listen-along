@@ -58,15 +58,6 @@ const videoEvents = ({
     setVideo((prev) => ({ ...prev, duration }));
   };
 
-  const onProgress = (state: {
-    played: number;
-    playedSeconds: number;
-    loaded: number;
-    loadedSeconds: number;
-  }): void => {
-    setVideo({ ...video, played: state.played, loaded: state.loaded });
-  };
-
   const onStart = () => {
     console.log("start");
   };
@@ -86,7 +77,7 @@ const videoEvents = ({
     onDuration,
     onSeek,
     onReady,
-    onProgress,
+    // onProgress,
   };
 };
 

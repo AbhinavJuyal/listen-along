@@ -18,7 +18,7 @@ const MessageInput = ({ handleSubmit, message, setMessage, error }: Props) => {
       <div className="flex w-full rounded-full px-2 py-1 bg-gray-200">
         <input
           type="text"
-          className="h-12 w-full pl-4 mr-4 bg-transparent border-none"
+          className="h-12 w-full pl-4 mr-4 bg-transparent border-none outline-none"
           value={message}
           placeholder="Type something here..."
           onChange={(e) => setMessage(e.target.value)}
