@@ -1,7 +1,8 @@
 import React from "react";
 import { BaseReactPlayerProps } from "react-player/base";
 
-export type IPlayList = string[];
+// export type IPlayList = string[];
+export type IPlayList = IPlayListInfo[];
 
 export interface IRoomContext {
   [otherProps: string]: any;

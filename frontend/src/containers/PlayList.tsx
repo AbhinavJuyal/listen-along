@@ -9,18 +9,17 @@ import useRoom from "../context/RoomContext";
 
 let counter = 0;
 interface IProps {
-  playListItemInfo: IPlayListInfo[];
+  playList: IPlayList;
   currentIdx: number;
   changeVideo: (idx: number, id: string) => void;
 }
 
 const PlayList = () => {
-  const { playListItemInfo, currentIdx, changeVideo } =
-    useRoom() as IRoomContext;
+  const { playList, currentIdx, changeVideo } = useRoom() as IRoomContext;
   return (
     <div className="mx-6 my-6">
-      {!(playListItemInfo?.length === 0)
-        ? playListItemInfo.map((e: IPlayListInfo, idx: number) => (
+      {playList && !(playList.length === 0)
+        ? playList.map((e: IPlayListInfo, idx: number) => (
             <PlayListItem
               key={e.id}
               item={e}

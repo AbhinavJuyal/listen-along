@@ -19,10 +19,10 @@ const BotMesssage = ({ show }: { show: boolean }) => {
             <code className="bg-black text-white p-2 rounded-lg whitespace-nowrap mr-2">
               :yt-video-link
             </code>
-            <span className="mr-2">or</span>
+            {/* <span className="mr-2">or</span>
             <code className="bg-black text-white p-2 rounded-lg whitespace-nowrap mr-2">
               :query
-            </code>
+            </code> */}
           </div>
         </div>
       </div>

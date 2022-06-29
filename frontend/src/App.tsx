@@ -22,6 +22,9 @@ function App() {
         reverseOrder={true}
         toastOptions={{
           duration: 2000,
+          style: {
+            padding: "16px",
+          },
         }}
       />
     </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MdChat } from "react-icons/md";
-import { IMessage } from "../../@types/video";
+import { IMessage, IRoomContext } from "../../@types/video";
+import useRoom from "../context/RoomContext";
 import { socket } from "../utils/socket";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
@@ -12,6 +13,7 @@ interface Props {
 }
 
 const Chat = ({ name, roomId, imgId }: Props) => {
+  const { botAddToPlayList } = useRoom() as IRoomContext;
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
@@ -54,11 +56,6 @@ const Chat = ({ name, roomId, imgId }: Props) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     // sending messages
     e.preventDefault();
-    const sendMessage: IMessage = {
-      name: "",
-      message: "",
-      imgId: -1,
-    };
     if (message === "") {
       setError(true);
       setTimeout(() => {
@@ -66,27 +63,27 @@ const Chat = ({ name, roomId, imgId }: Props) => {
       }, 2000);
       return;
     }
+    // defaults
+    const sendMessage: IMessage = {
+      name,
+      message,
+      imgId,
+    };
     if (message.startsWith(cmd) && message.split(" ")[0] === cmd) {
       // calling bot and other things
-      // sendMessage.name = "bot";
-      // sendMessage.messsage = "Adding video to the playlist ❤️";
+      // sending url to bot for parsing...
+      console.log(message.split(" "));
+      botAddToPlayList(message.split(" ")[1]);
+      // console.log(res);
+      // sendMessage.message = res.message;
       // sendMessage.imgId = 0;
-      // setMessages((prev) => [
-      //   ...prev,
-      //   {
-      //     ...sendMessage,
-      //   },
-      // ]);
-      console.log("bot message:");
+      // sendMessage.name = "bot";
+      // console.log("bot message:");
+      setMessage("");
       return;
     }
     setMessages((prev) => [...prev, { ...sendMessage }]);
-    socket.emit(
-      "message",
-      sendMessage.name,
-      sendMessage.message,
-      sendMessage.imgId
-    );
+    socket.emit("message", sendMessage.name, message, sendMessage.imgId);
     setMessage("");
     return;
   };

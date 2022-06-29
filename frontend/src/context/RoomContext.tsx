@@ -1,28 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import {
-  IPlayListInfo,
-  IPlayList,
-  IEventsFn,
-  IRoomContext,
-} from "../../@types/video";
-import Loading from "../components/Loading";
+import { IPlayList, IEventsFn, IRoomContext } from "../../@types/video";
 import Room from "../pages/Room";
-
-const extractPlayListInfo = (
-  res: AxiosResponse,
-  setPlayListItemInfo: React.Dispatch<React.SetStateAction<IPlayListInfo[]>>
-) => {
-  const extract = res.data.items.map((e: any) => {
-    return {
-      id: e.id,
-      title: e.snippet.title,
-      imgURL: e.snippet.thumbnails.standard.url,
-    };
-  });
-  setPlayListItemInfo(extract);
-  console.log(extract);
-};
+import { botParser } from "../utils/Bot";
 
 const contextEvents = ({
   currentIdx,
@@ -48,7 +28,7 @@ const contextEvents = ({
       console.log("end of the playlist");
       return;
     }
-    const nextURL = `${ytURL}${playList[nextIdx]}`;
+    const nextURL = `${ytURL}${playList[nextIdx].id}`;
     setUrl(nextURL);
     setCurrentIdx(nextIdx);
   };
@@ -62,39 +42,25 @@ const contextEvents = ({
 const RoomContext = React.createContext<IRoomContext | any>({});
 
 // { children }: { children: React.ReactNode }
+// "rqtEGrSGFvw",
+// "coV6Vc5POhM",
+// "v4WsQsRgbls",
+// "-wpTY3LM5bc",
 
 export const RoomProvider = () => {
   const [playList, setPlayList] = useState<IPlayList>([
-    "rqtEGrSGFvw",
-    "coV6Vc5POhM",
-    "v4WsQsRgbls",
-    "-wpTY3LM5bc",
+    {
+      id: "rqtEGrSGFvw",
+      title: "Tokyo - Leat'eq (Lyrics)",
+      imgURL: "https://i.ytimg.com/vi/rqtEGrSGFvw/sddefault.jpg",
+    },
   ]);
-  const [playListItemInfo, setPlayListItemInfo] = useState<IPlayListInfo[]>([]);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [url, setUrl] = useState<string>(
     "https://www.youtube.com/watch?v=rqtEGrSGFvw"
   );
-
-  useEffect(() => {
-    // retrieving all playlist info
-    if (playList.length === 0) return;
-    const ytURL: string = import.meta.env.VITE_YT_API_URL;
-    const ytAPIKey: string = import.meta.env.VITE_YT_API_KEY;
-    const videoIds: string = playList.join(",");
-    const url: string = `${ytURL}?id=${videoIds}&key=${ytAPIKey}&part=snippet`;
-    axios
-      .get(url)
-      .then((response: AxiosResponse) => {
-        console.log(response);
-        extractPlayListInfo(response, setPlayListItemInfo);
-      })
-      .catch((error) => {
-        if (axios.isAxiosError(error)) console.log("Axios error", error);
-      });
-  }, [playList]);
-
-  let fns = contextEvents({ currentIdx, setCurrentIdx, setUrl, playList });
+  const fns = contextEvents({ currentIdx, setCurrentIdx, setUrl, playList });
+  const botAddToPlayList = botParser(setPlayList);
 
   const value = {
     ...fns,
@@ -104,7 +70,7 @@ export const RoomProvider = () => {
     setCurrentIdx,
     url,
     setUrl,
-    playListItemInfo,
+    botAddToPlayList,
   };
 
   return (
