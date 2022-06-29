@@ -1,19 +1,18 @@
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
-import Messages from "../components/Messages";
-import VideoContainer from "../containers/VideoContainer";
+import Chat from "../components/Chat";
+import VideoPlayer from "../components/VideoPlayer";
+import PlayList from "../containers/PlayList";
 
 interface sessionState {
   name: string;
   roomId: string;
   imgId: number;
 }
-const localStorage: Storage = window.localStorage;
 
 const Room = () => {
   const location = useLocation();
   const state = location.state as sessionState;
-  // const [details, setDetails] = useState<sessionState>(state);
   const [btnText, setBtnText] = useState<string>("Invite Link");
   const baseURL = "http://localhost:3000";
   const inviteLink = `${baseURL}?${state.roomId}`;
@@ -44,9 +43,10 @@ const Room = () => {
       </div>
       <div className="grow flex">
         <div className="grow basis-2/3 shrink-0">
-          <VideoContainer />
+          <VideoPlayer />
+          <PlayList />
         </div>
-        <Messages name={state.name} roomId={state.roomId} imgId={state.imgId} />
+        <Chat name={state.name} roomId={state.roomId} imgId={state.imgId} />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
-import { SetStateAction } from "react";
-import { IPlayList, IPlayListInfo } from "../../@types/video";
+import { IPlayList, IPlayListInfo, IRoomContext } from "../../@types/video";
 import PlayListItem from "../components/PlayListItem";
+import useRoom from "../context/RoomContext";
 
 // rqtEGrSGFvw
 // coV6Vc5POhM
@@ -14,7 +14,9 @@ interface IProps {
   changeVideo: (idx: number, id: string) => void;
 }
 
-const PlayList = ({ playListItemInfo, currentIdx, changeVideo }: IProps) => {
+const PlayList = () => {
+  const { playListItemInfo, currentIdx, changeVideo } =
+    useRoom() as IRoomContext;
   return (
     <div className="mx-6 my-6">
       {!(playListItemInfo?.length === 0)

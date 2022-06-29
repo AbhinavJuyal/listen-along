@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
-import { IPlayListInfo, IPlayList } from "../../@types/video";
-import VideoPlayer from "../components/VideoPlayer";
-import PlayList from "./PlayList";
-import AddToPlayList from "../components/AddToPlayList";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  IPlayListInfo,
+  IPlayList,
+  IEventsFn,
+  IRoomContext,
+} from "../../@types/video";
+import Loading from "../components/Loading";
+import Room from "../pages/Room";
 
 const extractPlayListInfo = (
   res: AxiosResponse,
@@ -20,38 +24,12 @@ const extractPlayListInfo = (
   console.log(extract);
 };
 
-const VideoContainer = () => {
-  const [playList, setPlayList] = useState<IPlayList>([
-    "rqtEGrSGFvw",
-    "coV6Vc5POhM",
-    "v4WsQsRgbls",
-    "-wpTY3LM5bc",
-  ]);
-  const [playListItemInfo, setPlayListItemInfo] = useState<IPlayListInfo[]>([]);
-  const [currentIdx, setCurrentIdx] = useState<number>(0);
-  const [url, setUrl] = useState<string>(
-    "https://www.youtube.com/watch?v=rqtEGrSGFvw"
-  );
-
-  useEffect(() => {
-    // retrieving all playlist info
-    if (playList.length === 0) return;
-    console.log("inside context useEffect");
-    const ytURL: string = import.meta.env.VITE_YT_API_URL;
-    const ytAPIKey: string = import.meta.env.VITE_YT_API_KEY;
-    const videoIds: string = playList.join(",");
-    const url: string = `${ytURL}?id=${videoIds}&key=${ytAPIKey}&part=snippet`;
-    axios
-      .get(url)
-      .then((response: AxiosResponse) => {
-        console.log(response);
-        extractPlayListInfo(response, setPlayListItemInfo);
-      })
-      .catch((error) => {
-        if (axios.isAxiosError(error)) console.log("Axios error", error);
-      });
-  }, [playList]);
-
+const contextEvents = ({
+  currentIdx,
+  setCurrentIdx,
+  setUrl,
+  playList,
+}: IEventsFn) => {
   const changeVideo = (idx: number, id: string) => {
     console.log("changing video from playlist");
     const ytURL = import.meta.env.VITE_YT_URL;
@@ -75,27 +53,69 @@ const VideoContainer = () => {
     setCurrentIdx(nextIdx);
   };
 
-  const videoPlayerProps = {
+  return {
+    changeVideo,
+    onEnded,
+  };
+};
+
+const RoomContext = React.createContext<IRoomContext | any>({});
+
+// { children }: { children: React.ReactNode }
+
+export const RoomProvider = () => {
+  const [playList, setPlayList] = useState<IPlayList>([
+    "rqtEGrSGFvw",
+    "coV6Vc5POhM",
+    "v4WsQsRgbls",
+    "-wpTY3LM5bc",
+  ]);
+  const [playListItemInfo, setPlayListItemInfo] = useState<IPlayListInfo[]>([]);
+  const [currentIdx, setCurrentIdx] = useState<number>(0);
+  const [url, setUrl] = useState<string>(
+    "https://www.youtube.com/watch?v=rqtEGrSGFvw"
+  );
+
+  useEffect(() => {
+    // retrieving all playlist info
+    if (playList.length === 0) return;
+    const ytURL: string = import.meta.env.VITE_YT_API_URL;
+    const ytAPIKey: string = import.meta.env.VITE_YT_API_KEY;
+    const videoIds: string = playList.join(",");
+    const url: string = `${ytURL}?id=${videoIds}&key=${ytAPIKey}&part=snippet`;
+    axios
+      .get(url)
+      .then((response: AxiosResponse) => {
+        console.log(response);
+        extractPlayListInfo(response, setPlayListItemInfo);
+      })
+      .catch((error) => {
+        if (axios.isAxiosError(error)) console.log("Axios error", error);
+      });
+  }, [playList]);
+
+  let fns = contextEvents({ currentIdx, setCurrentIdx, setUrl, playList });
+
+  const value = {
+    ...fns,
     playList,
+    setPlayList,
     currentIdx,
     setCurrentIdx,
     url,
-    onEnded,
-  };
-
-  const playListProps = {
+    setUrl,
     playListItemInfo,
-    currentIdx,
-    changeVideo,
   };
 
   return (
-    <>
-      <VideoPlayer />
-      <PlayList />
-      <AddToPlayList />
-    </>
+    <RoomContext.Provider value={value}>
+      <Room />
+    </RoomContext.Provider>
   );
 };
 
-export default VideoContainer;
+const useRoom = () => {
+  return useContext(RoomContext);
+};
+
+export default useRoom;

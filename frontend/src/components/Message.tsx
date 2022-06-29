@@ -1,14 +1,15 @@
+import { IMessage } from "../../@types/video";
+
 interface Props {
   name: string;
   message: string;
   imgId: number;
 }
 
-const Message = ({ name, message, imgId }: Props) => {
+const Message = ({ name, message, imgId }: IMessage) => {
   const pf = `${
     import.meta.env.VITE_SERVER_URL
   }/public/characters/${imgId}.png`;
-  console.log(pf);
   return (
     <div className={name === "server" ? "text-center" : "flex mt-4"}>
       <img className="w-12 h-12 rounded-full mr-4" src={pf} alt={name} />

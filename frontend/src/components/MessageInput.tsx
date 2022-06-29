@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { MdSend } from "react-icons/md";
+import useDebounce from "../utils/useDebounce";
+import BotMesssage from "./BotMesssage";
 
 interface Props {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -8,8 +11,22 @@ interface Props {
 }
 
 const MessageInput = ({ handleSubmit, message, setMessage, error }: Props) => {
+  const debouncedValue = useDebounce<string>(message, 300);
+  const [showCmd, setShowCmd] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log("here", debouncedValue);
+    let str = debouncedValue.split(" ");
+    if (str[0] === "yt+") {
+      setShowCmd(true);
+      return;
+    }
+    setShowCmd(false);
+  }, [debouncedValue]);
+
   return (
-    <form className="m-2" onSubmit={handleSubmit}>
+    <form className="m-2 relative" onSubmit={handleSubmit}>
+      <BotMesssage show={showCmd} />
       {error && (
         <div className="text-xs py-2 px-2 pl-4 text-red-400">
           Message Cannot be empty

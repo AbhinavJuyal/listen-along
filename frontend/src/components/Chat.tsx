@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import { MdChat } from "react-icons/md";
+import { IMessage } from "../../@types/video";
 import { socket } from "../utils/socket";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
@@ -9,18 +11,12 @@ interface Props {
   imgId: number;
 }
 
-interface Message {
-  name: string;
-  message: string;
-  imgId: number;
-}
-
-const Messages = ({ name, roomId, imgId }: Props) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+const Chat = ({ name, roomId, imgId }: Props) => {
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
   const chatContainer = useRef<HTMLDivElement>(null);
-
+  const cmd = import.meta.env.VITE_BOT_CMD;
   useEffect(() => {
     // prev messages
     socket.on("prevMessages", (messages) => {
@@ -58,6 +54,11 @@ const Messages = ({ name, roomId, imgId }: Props) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     // sending messages
     e.preventDefault();
+    const sendMessage: IMessage = {
+      name: "",
+      message: "",
+      imgId: -1,
+    };
     if (message === "") {
       setError(true);
       setTimeout(() => {
@@ -65,9 +66,29 @@ const Messages = ({ name, roomId, imgId }: Props) => {
       }, 2000);
       return;
     }
-    setMessages((prev) => [...prev, { name, message, imgId }]);
-    socket.emit("message", name, message, imgId);
+    if (message.startsWith(cmd) && message.split(" ")[0] === cmd) {
+      // calling bot and other things
+      // sendMessage.name = "bot";
+      // sendMessage.messsage = "Adding video to the playlist ❤️";
+      // sendMessage.imgId = 0;
+      // setMessages((prev) => [
+      //   ...prev,
+      //   {
+      //     ...sendMessage,
+      //   },
+      // ]);
+      console.log("bot message:");
+      return;
+    }
+    setMessages((prev) => [...prev, { ...sendMessage }]);
+    socket.emit(
+      "message",
+      sendMessage.name,
+      sendMessage.message,
+      sendMessage.imgId
+    );
     setMessage("");
+    return;
   };
 
   const handleScroll = (e: React.HTMLAttributes<HTMLDivElement>) => {
@@ -111,4 +132,4 @@ const Messages = ({ name, roomId, imgId }: Props) => {
   );
 };
 
-export default Messages;
+export default Chat;

@@ -1,7 +1,13 @@
 import React, { useRef, useState } from "react";
 import { BaseReactPlayerProps } from "react-player/base";
 import ReactPlayer from "react-player/youtube";
-import { IPlayList, IVideoEvents, IVideoEventsFn } from "../../@types/video";
+import {
+  IPlayList,
+  IRoomContext,
+  IVideoEvents,
+  IVideoEventsFn,
+} from "../../@types/video";
+import useRoom from "../context/RoomContext";
 
 interface IProps {
   playList?: IPlayList;
@@ -69,7 +75,7 @@ const videoEvents = ({
     loaded: number;
     loadedSeconds: number;
   }): void => {
-    setVideo((prev) => ({
+    setVideo((prev: any) => ({
       ...prev,
       played: state.played,
       loaded: state.loaded,
@@ -80,7 +86,6 @@ const videoEvents = ({
     onStart,
     onPlay,
     onPause,
-    // onEnded,
     onError,
     onDuration,
     onSeek,
@@ -89,13 +94,9 @@ const videoEvents = ({
   };
 };
 
-const VideoPlayer = ({
-  playList,
-  currentIdx,
-  setCurrentIdx,
-  url,
-  onEnded,
-}: IProps) => {
+const VideoPlayer = () => {
+  const { playList, currentIdx, setCurrentIdx, url, onEnded } =
+    useRoom() as IRoomContext;
   const [video, setVideo] = useState<BaseReactPlayerProps>(initialVideoState);
   const reactPlayerRef = useRef<any>(null);
   const [videoReady, setVideoReady] = useState<boolean>(false);
@@ -103,7 +104,6 @@ const VideoPlayer = ({
     video,
     setVideo,
     setVideoReady,
-    playList,
     currentIdx,
     setCurrentIdx,
   });
