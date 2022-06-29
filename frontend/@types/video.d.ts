@@ -1,13 +1,15 @@
 import { BaseReactPlayerProps } from "react-player/base";
 
-export type PlayList = string[];
+export type IPlayList = string[];
 
 export interface IVideoEventsFn {
   video: BaseReactPlayerProps;
   setVideo: React.Dispatch<React.SetStateAction<BaseReactPlayerProps>>;
   setVideoReady: React.Dispatch<React.SetStateAction<boolean>>;
   playList: PlayList;
-  setPlayList: React.Dispatch<React.SetStateAction<PlayList>>;
+  setPlayList?: React.Dispatch<React.SetStateAction<PlayList>>;
+  currentIdx: number;
+  setCurrentIdx: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export interface IVideoEvents {
@@ -47,5 +49,5 @@ export interface IVideoContext {
 export interface IPlayListInfo {
   id: string;
   title: string;
-  imgUrl: string;
+  imgURL: string;
 }

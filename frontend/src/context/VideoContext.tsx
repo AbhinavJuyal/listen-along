@@ -6,7 +6,7 @@ import {
   IVideoContext,
   IVideoEvents,
   IVideoEventsFn,
-  PlayList,
+  IPlayList,
 } from "../../@types/video";
 
 const VideoContext = React.createContext<IVideoContext | null>(null);
@@ -98,7 +98,7 @@ const extractPlayListInfo = (
 
 export const VideoProvider = ({ children }: { children: React.ReactNode }) => {
   const [video, setVideo] = useState<BaseReactPlayerProps>(initialVideoState);
-  const [playList, setPlayList] = useState<PlayList>([
+  const [playList, setPlayList] = useState<IPlayList>([
     "rqtEGrSGFvw",
     "coV6Vc5POhM",
     "v4WsQsRgbls",
@@ -113,7 +113,7 @@ export const VideoProvider = ({ children }: { children: React.ReactNode }) => {
     // retrieving all playlist info
     if (playList.length === 0) return;
     console.log("inside context useEffect");
-    const ytURL: string = import.meta.env.VITE_YT_URL;
+    const ytURL: string = import.meta.env.VITE_YT_API_URL;
     const ytAPIKey: string = import.meta.env.VITE_YT_API_KEY;
     const videoIds: string = playList.join(",");
     const url: string = `${ytURL}?id=${videoIds}&key=${ytAPIKey}&part=snippet`;

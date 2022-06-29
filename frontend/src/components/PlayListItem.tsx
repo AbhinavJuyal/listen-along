@@ -1,24 +1,34 @@
-import { useState } from "react";
-import { useAxios } from "../utils/useAxios";
+import { IPlayListInfo } from "../../@types/video";
+import { MdOutlineMoreVert, MdPlayArrow } from "react-icons/md";
 
-// rqtEGrSGFvw
-// coV6Vc5POhM
-// v4WsQsRgbls
-// -wpTY3LM5bc
+interface IProps {
+  item: IPlayListInfo;
+  active: boolean;
+  changeVideo: (idx: number, id: string) => void;
+  idx: number;
+}
 
-const PlayListItem = () => {
+const PlayListItem = ({ item, active, changeVideo, idx }: IProps) => {
   return (
-    // <>
-    //   <div className="w-8 h-8">
-    //     <img src={""} alt="Video Cover" />
-    //     {/* <div className="">{item.title}</div> */}
-    //     <button className="">
-    //       <img src={""} alt="three-dot-icon" />
-    //     </button>
-    //   </div>
-    //   `
-    // </>
-    <></>
+    <div
+      className={
+        "px-4 py-[18px] cursor-pointer mb-4 group " + (active && "bg-slate-400")
+      }
+    >
+      <div className="flex items-center w-full h-8">
+        <button
+          className="w-5 h-5 mr-4 invisible group-hover:visible"
+          onClick={() => changeVideo(idx, item.id)}
+        >
+          <MdPlayArrow className="w-full h-full" />
+        </button>
+        <img src={item.imgURL} className="w-8 h-8" alt="Video Cover" />
+        <div className="ml-12">{item.title}</div>
+        <button className="ml-auto w-5 h-5">
+          <MdOutlineMoreVert className="w-full h-full" />
+        </button>
+      </div>
+    </div>
   );
 };
 

@@ -14,7 +14,7 @@ function App() {
             <Route path="" element={<Room />} />
           </Route> */}
           <Route path="/room" element={<Room />} />
-          <Route path="/sample" element={<Sample />} />
+          {/* <Route path="/sample" element={<Sample />} /> */}
         </Routes>
       </MemoryRouter>
       <Toaster
