@@ -82,10 +82,13 @@ function extractId(url: string): string {
 
 const extractPlayListInfo = (res: AxiosResponse): IPlayListInfo => {
   const e = res.data.items[0];
+  let imgURL = e.snippet.thumbnails.default.url;
+  if (Object.keys(e.snippet.thumbnails).includes("standard"))
+    imgURL = e.snippet.thumbnails.standard.url;
   return {
     id: e.id,
     title: e.snippet.title,
-    imgURL: e.snippet.thumbnails.standard.url,
+    imgURL,
   };
 };
 

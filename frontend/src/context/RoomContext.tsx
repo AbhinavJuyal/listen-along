@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import { FastAverageColor } from "fast-average-color";
 import React, { useContext, useEffect, useState } from "react";
 import { IPlayList, IEventsFn, IRoomContext } from "../../@types/video";
 import Room from "../pages/Room";
@@ -61,6 +62,24 @@ export const RoomProvider = () => {
   );
   const fns = contextEvents({ currentIdx, setCurrentIdx, setUrl, playList });
   const botAddToPlayList = botParser(setPlayList);
+  // @ts-ignore
+  const fac = new FastAverageColor();
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = playList[currentIdx].imgURL + "?not-from-cache-please";
+    // this code works
+    fac
+      .getColorAsync(img)
+      .then((color) => {
+        // container.style.backgroundColor = color.rgba;
+        // container.style.color = color.isDark ? '#fff' : '#000';
+        console.log("color result", color);
+      })
+      .catch((e) => {
+        console.log("color-error", e);
+      });
+  }, [currentIdx]);
 
   const value = {
     ...fns,

@@ -5,11 +5,23 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 // import { connectDB } from "./utils/connectDB";
 import { handleWebSockets } from "./utils/socket";
+import { downloadImg } from "./controllers/cimg";
 
 const setupMiddlewares = (app: Application) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan("dev"));
+};
+
+const setupRoutes = (app: Application) => {
+  app.get("/", (_, res: Response) => {
+    res.status(200).json("lol noice!");
+  });
+
+  app.get("/api/cimg", downloadImg);
+
+  // serving static files
+  app.use("/public", express.static("public"));
 };
 
 const bootstrap = () => {
@@ -19,12 +31,8 @@ const bootstrap = () => {
   const PORT: number = config.get("port") || 5000;
   const CLIENT_URL: string = config.get("clientURL");
 
-  app.get("/", (_, res: Response) => {
-    res.status(200).json("lol noice!");
-  });
+  setupRoutes(app);
 
-  // serving static files
-  app.use("/public", express.static("public"));
   // connectDB();
 
   const httpServer = createServer(app);

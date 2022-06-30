@@ -22,7 +22,13 @@ const PlayListItem = ({ item, active, changeVideo, idx }: IProps) => {
         >
           <MdPlayArrow className="w-full h-full" />
         </button>
-        <img src={item.imgURL} className="w-8 h-8" alt="Video Cover" />
+        <img
+          crossOrigin="anonymous"
+          src={`${item.imgURL}?a-dummy-parameter`}
+          className="w-8 h-8"
+          alt="Video Cover"
+          data-id={idx}
+        />
         <div className="ml-12">{item.title}</div>
         <button className="ml-auto w-5 h-5">
           <MdOutlineMoreVert className="w-full h-full" />
