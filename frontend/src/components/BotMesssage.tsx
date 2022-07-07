@@ -16,7 +16,7 @@ const BotMesssage = ({ show }: { show: boolean }) => {
           <p className="text-gray-500 text-sm font-bold mb-1">Bot Command</p>
           <div className="flex items-center text-lg font-bold">
             <span className="mr-2">{cmd}</span>
-            <code className="bg-black text-white p-2 rounded-lg whitespace-nowrap mr-2">
+            <code className="bg-black-900 text-white p-2 rounded-lg whitespace-nowrap mr-2">
               :yt-video-link
             </code>
             {/* <span className="mr-2">or</span>

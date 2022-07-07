@@ -43,5 +43,38 @@ class MessageStore {
   }
 }
 
+interface IHostStore {
+  [roomId: string]: string;
+}
+
+class HostStore {
+  _hostStore: IHostStore;
+  constructor() {
+    this._hostStore = {};
+  }
+  get store() {
+    return this._hostStore;
+  }
+  printStore() {
+    console.log(chalk.underline.green("Host Store:"));
+    console.log(this._hostStore);
+  }
+  checkStoreRoom(roomId: string) {
+    // true if exists
+    // false if does not exits
+    return typeof this._hostStore[roomId] !== "undefined";
+  }
+  getHost(rId: string) {
+    return this._hostStore[rId];
+  }
+  saveHost(sId: string, rId: string) {
+    // creates store room
+    // if (!this.checkStoreRoom(rId)) this._hostStore[rId] = sId;
+    this._hostStore[rId] = sId;
+    this.printStore();
+  }
+}
+
 export const db = [];
 export const messageStore = new MessageStore();
+export const hostStore = new HostStore();

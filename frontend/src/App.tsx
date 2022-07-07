@@ -7,7 +7,7 @@ import { RoomProvider } from "./context/RoomContext";
 
 function App() {
   return (
-    <div className="h-screen">
+    <div className="h-screen pt-4">
       <MemoryRouter>
         <Routes>
           <Route index element={<Login />} />

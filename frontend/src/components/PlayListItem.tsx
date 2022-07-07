@@ -7,31 +7,38 @@ interface IProps {
   changeVideo: (idx: number, id: string) => void;
   idx: number;
 }
-
+// py-[18px]
 const PlayListItem = ({ item, active, changeVideo, idx }: IProps) => {
   return (
     <div
       className={
-        "px-4 py-[18px] cursor-pointer mb-4 group " + (active && "bg-slate-400")
+        "px-4 py-2 cursor-pointer mb-4 group text-white rounded-lg " +
+        (active ? "bg-gray-primary/25" : "bg-black-800")
       }
     >
-      <div className="flex items-center w-full h-8">
+      <div className="flex items-center w-full">
         <button
           className="w-5 h-5 mr-4 invisible group-hover:visible"
           onClick={() => changeVideo(idx, item.id)}
         >
-          <MdPlayArrow className="w-full h-full" />
+          <MdPlayArrow className="" color="white" />
         </button>
         <img
-          crossOrigin="anonymous"
-          src={`${item.imgURL}?a-dummy-parameter`}
-          className="w-8 h-8"
+          src={`${item.imgURL}`}
+          className="w-16"
           alt="Video Cover"
           data-id={idx}
         />
-        <div className="ml-12">{item.title}</div>
+        <div>
+          <div className="ml-12 text-sm text-white font-semibold">
+            {item.title}
+          </div>
+          <div className="ml-12 text-sm text-gray-primary font-medium">
+            {item.channelTitle}
+          </div>
+        </div>
         <button className="ml-auto w-5 h-5">
-          <MdOutlineMoreVert className="w-full h-full" />
+          <MdOutlineMoreVert className="w-full h-full" color="white" />
         </button>
       </div>
     </div>

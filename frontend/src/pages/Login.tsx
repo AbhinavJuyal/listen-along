@@ -30,7 +30,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center text-center m-4">
+    <div className="flex justify-center text-center m-4 mt-0">
       <div className="w-1/3">
         <p className="text-2xl text-left mb-4">Login</p>
         <form onSubmit={handleSubmit}>

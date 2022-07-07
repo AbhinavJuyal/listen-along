@@ -1,9 +1,8 @@
-import axios, { AxiosResponse } from "axios";
-import { FastAverageColor } from "fast-average-color";
 import React, { useContext, useEffect, useState } from "react";
 import { IPlayList, IEventsFn, IRoomContext } from "../../@types/video";
 import Room from "../pages/Room";
 import { botParser } from "../utils/Bot";
+import { socket } from "../utils/socket";
 
 const contextEvents = ({
   currentIdx,
@@ -47,39 +46,43 @@ const RoomContext = React.createContext<IRoomContext | any>({});
 // "coV6Vc5POhM",
 // "v4WsQsRgbls",
 // "-wpTY3LM5bc",
+// https://www.youtube.com/watch?v=ilvIWL2hSI8
+// yt+ https://www.youtube.com/watch?v=coV6Vc5POhM
+// {
+//   id: "rqtEGrSGFvw",
+//   title: "Tokyo - Leat'eq (Lyrics)",
+//   imgURL: "https://i.ytimg.com/vi/rqtEGrSGFvw/sddefault.jpg",
+//   channelTitle: "Leat'eq",
+// },
 
 export const RoomProvider = () => {
-  const [playList, setPlayList] = useState<IPlayList>([
-    {
-      id: "rqtEGrSGFvw",
-      title: "Tokyo - Leat'eq (Lyrics)",
-      imgURL: "https://i.ytimg.com/vi/rqtEGrSGFvw/sddefault.jpg",
-    },
-  ]);
+  const [playList, setPlayList] = useState<IPlayList>([]);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
-  const [url, setUrl] = useState<string>(
-    "https://www.youtube.com/watch?v=rqtEGrSGFvw"
+  const [url, setUrl] = useState<string>(() =>
+    !(playList.length === 0)
+      ? `${import.meta.env.VITE_YT_URL}${playList[currentIdx].id}`
+      : ""
   );
+
+  useEffect(() => {
+    socket.on("reqPlayList", (receiverSId, message) => {
+      console.log("reqPlayList");
+      console.log(message);
+      socket.emit("syncHostPlayList", playList, receiverSId);
+    });
+    return () => {
+      socket.off("reqPlayList");
+    };
+  }, []);
+
+  useEffect(() => {
+    if (currentIdx === 0 && url === "" && playList.length !== 0) {
+      setUrl(`${import.meta.env.VITE_YT_URL}${playList[currentIdx].id}`);
+    }
+  }, [playList]);
+
   const fns = contextEvents({ currentIdx, setCurrentIdx, setUrl, playList });
   const botAddToPlayList = botParser(setPlayList);
-  // @ts-ignore
-  const fac = new FastAverageColor();
-  useEffect(() => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = playList[currentIdx].imgURL + "?not-from-cache-please";
-    // this code works
-    fac
-      .getColorAsync(img)
-      .then((color) => {
-        // container.style.backgroundColor = color.rgba;
-        // container.style.color = color.isDark ? '#fff' : '#000';
-        console.log("color result", color);
-      })
-      .catch((e) => {
-        console.log("color-error", e);
-      });
-  }, [currentIdx]);
 
   const value = {
     ...fns,

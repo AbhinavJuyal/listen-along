@@ -18,15 +18,15 @@ const Room = () => {
   const inviteLink = `${baseURL}?${state.roomId}`;
 
   return (
-    <div className="w-full h-screen p-10 flex flex-col items-stretch">
-      <div>
-        <a
+    <div className="w-full h-full p-4 pt-0 flex flex-col items-stretch">
+      <div className="text-right mb-4">
+        {/* <a
           className="block"
           href={`${baseURL}?${state.roomId}`}
           target="_blank"
         >
           {`${baseURL}?${state.roomId}`}
-        </a>
+        </a> */}
         <button
           type="submit"
           className="p-3 rounded-lg bg-gray-900 text-white text-sm"
@@ -42,8 +42,11 @@ const Room = () => {
         </button>
       </div>
       <div className="grow flex">
-        <div className="grow basis-2/3 shrink-0">
+        <div className="grow basis-2/3 shrink-0 flex flex-col">
           <VideoPlayer />
+          <div className="text-gray-primary text-sm mb-4 font-bold">
+            Up Next
+          </div>
           <PlayList />
         </div>
         <Chat name={state.name} roomId={state.roomId} imgId={state.imgId} />

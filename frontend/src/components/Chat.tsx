@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { MdChat } from "react-icons/md";
 import { IMessage, IRoomContext } from "../../@types/video";
 import useRoom from "../context/RoomContext";
 import { socket } from "../utils/socket";
@@ -56,11 +55,11 @@ const Chat = ({ name, roomId, imgId }: Props) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     // sending messages
     e.preventDefault();
-    if (message === "") {
-      setError(true);
-      setTimeout(() => {
-        setError(false);
-      }, 2000);
+    if (message === null || message === undefined || message.trim() === "") {
+      // setError(true);
+      // setTimeout(() => {
+      //   setError(false);
+      // }, 2000);
       return;
     }
     // defaults
@@ -88,15 +87,15 @@ const Chat = ({ name, roomId, imgId }: Props) => {
     return;
   };
 
-  const handleScroll = (e: React.HTMLAttributes<HTMLDivElement>) => {
-    const chat: HTMLDivElement | null = chatContainer.current;
-    if (chat?.scrollTop === 0) {
-    }
-  };
+  // const handleScroll = (e: React.HTMLAttributes<HTMLDivElement>) => {
+  //   const chat: HTMLDivElement | null = chatContainer.current;
+  //   if (chat?.scrollTop === 0) {
+  //   }
+  // };
 
   return (
-    <div className="w-full basis-1/3 flex flex-col justify-between items-stretch">
-      <h4 className="ml-2 text-2xl font-bold">Chat</h4>
+    <div className="w-full basis-1/3 flex flex-col justify-between items-stretch bg-black-800 rounded-lg p-2 mr-6">
+      <h4 className="ml-2 mt-1 text-2xl font-bold text-white">Chat</h4>
       <div className="grow shrink basis-auto flex flex-col h-96">
         <div
           ref={chatContainer}

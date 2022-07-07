@@ -1,6 +1,34 @@
 import { Server, Socket } from "socket.io";
 import { v4 as uuidv4 } from "uuid";
-import { messageStore } from "./db";
+import { messageStore, hostStore } from "./db";
+
+const handleHosts = (io: Server, socket: Socket) => {
+  const sId = socket.data.id;
+  const rId = socket.data.roomId;
+  let activeClients: string[] = [
+    ...(io.of("/").adapter.rooms.get(rId) as Set<string>),
+  ];
+  let isHost = activeClients.length === 1;
+  console.log("activeClients", activeClients);
+  if (isHost) {
+    console.log("host");
+    socket.data.isHost = true;
+    hostStore.saveHost(sId, rId);
+    io.to(sId).emit("host", "you're the host");
+  } else {
+    console.log("not host");
+    socket.data.isHost = false;
+    let hostId = hostStore.getHost(rId);
+    io.to(hostId).emit("reqPlayList", sId, "bhejde bhai pls!");
+    io.to(hostId).emit("reqVideo", sId, "bhejde bhai pls!");
+  }
+  socket.on("syncHostPlayList", (playList: string[], receiverSId: string) => {
+    io.to(receiverSId).emit("syncHostPlayList", playList);
+  });
+  socket.on("syncHostVideo", (video: any, receiverSId: string) => {
+    io.to(receiverSId).emit("syncHostVideo", video);
+  });
+};
 
 const handleOnConnection = (socket: Socket) => {
   const auth = socket.handshake.auth;
@@ -36,9 +64,11 @@ const handleMessaging = (socket: Socket) => {
 
 export const handleWebSockets = (io: Server) => {
   console.log("handling web sockets");
-
+  const returnActiveClients = (roomID: string) =>
+    io.of("/").adapter.rooms.get(roomID);
   io.on("connection", (socket: Socket) => {
     handleOnConnection(socket);
     handleMessaging(socket);
+    handleHosts(io, socket);
   });
 };

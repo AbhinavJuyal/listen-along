@@ -1,58 +1,9 @@
 import axios, { AxiosResponse } from "axios";
 import toast from "react-hot-toast";
-import DailyMotionPlayer from "react-player/dailymotion";
 import { IPlayList, IPlayListInfo } from "../../@types/video";
-
-// useEffect(() => {
-//   // retrieving all playlist info
-//   if (playList.length === 0) return;
-//   const ytURL: string = import.meta.env.VITE_YT_API_URL;
-//   const ytAPIKey: string = import.meta.env.VITE_YT_API_KEY;
-//   const videoIds: string = playList.join(",");
-//   const url: string = `${ytURL}?id=${videoIds}&key=${ytAPIKey}&part=snippet`;
-//   axios
-//     .get(url)
-//     .then((response: AxiosResponse) => {
-//       console.log(response);
-//       extractPlayListInfo(response, setPlayListItemInfo);
-//     })
-//     .catch((error) => {
-//       if (axios.isAxiosError(error)) console.log("Axios error", error);
-//     });
-// }, [playList]);
 
 const regexURL =
   /(http:|https:)?\/\/(www\.)?(youtube.com|youtu.be)\/(watch)?(\?v=)?(\S+)?/g;
-
-// export class Bot {
-//   constructor(
-//     public setPlayList: React.Dispatch<React.SetStateAction<IPlayList>>
-//   ) {}
-//   // checks validity
-//   checkURL(url: string): boolean {
-//     const regexArr = [...url.matchAll(regexURL)];
-//     if (!regexArr) return false;
-//     if (regexArr.length > 1) return false;
-//     const tempArr = [...regexArr[0]];
-//     const checkArr = ["https:", "www.", "youtube.com", "watch", "?v="];
-//     tempArr.shift();
-//     tempArr.pop();
-//     if (checkArr.length !== tempArr.length) return false;
-//     const result = tempArr.every((e, idx) => checkArr.indexOf(e) === idx);
-//     return result;
-//   }
-//   extractId(url: string): string {
-//     const regexArr = [...url.matchAll(regexURL)];
-//     const temp = [...regexArr[0]];
-//     const id = temp[temp.length - 1];
-//     return id;
-//   }
-//   addToPlayList(url: string) {
-//     if (!this.checkURL(url)) return { message: "Not a valid url format" };
-//     const videoId: string = this.extractId(url);
-//     const info = this.getVideoInfo();
-//   }
-// }
 
 function checkURL(url: string): boolean {
   // incase full url wasn't provided
@@ -89,6 +40,7 @@ const extractPlayListInfo = (res: AxiosResponse): IPlayListInfo => {
     id: e.id,
     title: e.snippet.title,
     imgURL,
+    channelTitle: e.snippet.channelTitle,
   };
 };
 
@@ -138,7 +90,7 @@ export function botParser(
       });
       return {
         err: false,
-        message: "Adding video to the playlist ❤️",
+        message: "Adding video to the playlist.",
       };
     });
   };

@@ -19,6 +19,7 @@ export interface IPlayListInfo {
   id: string;
   title: string;
   imgURL: string;
+  channelTitle: string;
 }
 
 export interface IVideoEventsFn {
