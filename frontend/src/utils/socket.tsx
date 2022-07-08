@@ -3,20 +3,18 @@ export const socket = io(import.meta.env.VITE_SERVER_URL, {
   autoConnect: false,
 });
 
-const handleLocalStorage = () => {
-  console.log("inside handle");
-  const localStorage: Storage = window.localStorage;
-  localStorage.removeItem("name");
-  localStorage.removeItem("roomId");
-};
+console.log("inside socket.tsx", socket);
+
+socket.on("host", (msg) => console.log(msg));
 
 socket.on("disconnect", (reason, desc) => {
-  console.log("disconnection");
   if (reason === "io server disconnect") {
     // the disconnection was initiated by the server, you need to reconnect manually
     // socket.connect();
     console.log("Error: Server Interrupt");
+    return;
   }
+  console.log("disconnection", reason);
   // temporary: deletes the key:value in localStorage
   // handleLocalStorage();
 });

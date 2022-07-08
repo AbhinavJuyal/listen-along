@@ -19,95 +19,9 @@ interface IProps {
   onEnded: () => void;
 }
 
-const initialVideoState: BaseReactPlayerProps = {
-  pip: false,
-  playing: true,
-  controls: false,
-  light: false,
-  volume: 0.8,
-  muted: true,
-  played: 0,
-  loaded: 0,
-  duration: 0,
-  playbackRate: 1.0,
-  loop: false,
-};
-
-const videoEvents = ({
-  video,
-  setVideo,
-  setVideoReady,
-}: IVideoEventsFn): IVideoEvents => {
-  const onPlay = () => {
-    console.log("handlePlay");
-    setVideo({ ...video, playing: true });
-    // videoEventEmit("play");
-  };
-
-  const onPause = () => {
-    console.log("handlePause");
-    setVideo({ ...video, playing: false });
-    // videoEventEmit("pause");
-  };
-
-  const onReady = () => {
-    console.log("readyy");
-    setVideoReady(true);
-  };
-
-  const onDuration = (duration: any) => {
-    console.log("duration");
-    setVideo((prev) => ({ ...prev, duration }));
-  };
-
-  const onStart = () => {
-    console.log("start");
-  };
-  const onError = (e: any) => {
-    console.log("Error:", e);
-  };
-  const onSeek = (sec: number) => {
-    console.log("seconds", sec);
-  };
-
-  const onProgress = (state: {
-    played: number;
-    playedSeconds: number;
-    loaded: number;
-    loadedSeconds: number;
-  }): void => {
-    setVideo((prev: any) => ({
-      ...prev,
-      played: state.played,
-      loaded: state.loaded,
-    }));
-  };
-
-  return {
-    onStart,
-    onPlay,
-    onPause,
-    onError,
-    onDuration,
-    onSeek,
-    onReady,
-    onProgress,
-  };
-};
-
 const VideoPlayer = () => {
-  const { playList, currentIdx, setCurrentIdx, url, onEnded } =
+  const { video, url, reactPlayerEvents, reactPlayerRef } =
     useRoom() as IRoomContext;
-  const [video, setVideo] = useState<BaseReactPlayerProps>(initialVideoState);
-  const reactPlayerRef = useRef<any>(null);
-  const [videoReady, setVideoReady] = useState<boolean>(false);
-  const events: IVideoEvents = videoEvents({
-    video,
-    setVideo,
-    setVideoReady,
-    currentIdx,
-    setCurrentIdx,
-  });
 
   useEffect(() => {
     socket.on("reqVideo", (receiverSId, message) => {
@@ -131,10 +45,9 @@ const VideoPlayer = () => {
           className="bg-slate-400"
           width="100%"
           height="100%"
-          onEnded={onEnded}
           url={url}
           {...video}
-          {...events}
+          {...reactPlayerEvents}
         />
       </div>
     </div>

@@ -1,8 +1,9 @@
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Chat from "../components/Chat";
 import VideoPlayer from "../components/VideoPlayer";
 import PlayList from "../containers/PlayList";
+import { socket } from "../utils/socket";
 
 interface sessionState {
   name: string;
@@ -16,6 +17,15 @@ const Room = () => {
   const [btnText, setBtnText] = useState<string>("Invite Link");
   const baseURL = "http://localhost:3000";
   const inviteLink = `${baseURL}?${state.roomId}`;
+
+  useEffect(() => {
+    console.log("change in socket!", socket);
+    console.log(socket.listeners("host"));
+    return () => {
+      socket.off("host");
+      console.log("unmounting");
+    };
+  }, [socket]);
 
   return (
     <div className="w-full h-full p-4 pt-0 flex flex-col items-stretch">

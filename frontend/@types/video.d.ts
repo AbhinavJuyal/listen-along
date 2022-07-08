@@ -8,11 +8,22 @@ export interface IRoomContext {
   [otherProps: string]: any;
 }
 
+// export interface IEventsFn {
+//   currentIdx: number;
+//   setCurrentIdx: React.Dispatch<React.SetStateAction<number>>;
+//   setUrl: React.Dispatch<React.SetStateAction<string>>;
+//   playList: IPlayList;
+// }
+
 export interface IEventsFn {
+  video?: BaseReactPlayerProps;
+  setVideo: React.Dispatch<React.SetStateAction<BaseReactPlayerProps>>;
+  setVideoReady: React.Dispatch<React.SetStateAction<boolean>>;
+  playList?: PlayList;
+  setPlayList?: React.Dispatch<React.SetStateAction<PlayList>>;
   currentIdx: number;
   setCurrentIdx: React.Dispatch<React.SetStateAction<number>>;
   setUrl: React.Dispatch<React.SetStateAction<string>>;
-  playList: IPlayList;
 }
 
 export interface IPlayListInfo {

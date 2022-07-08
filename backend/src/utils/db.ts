@@ -70,7 +70,12 @@ class HostStore {
   saveHost(sId: string, rId: string) {
     // creates store room
     // if (!this.checkStoreRoom(rId)) this._hostStore[rId] = sId;
+    console.log("saveHost", sId);
     this._hostStore[rId] = sId;
+    this.printStore();
+  }
+  deleteHost(rId: string) {
+    delete this._hostStore[rId];
     this.printStore();
   }
 }
